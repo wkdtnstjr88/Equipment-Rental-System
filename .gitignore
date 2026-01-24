@@ -1,58 +1,62 @@
-# Java / Maven
-target/
-!.mvn/wrapper/maven-wrapper.jar
+# Gradle 빌드 결과물
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# 컴파일된 파일
 *.class
-*.jar
-*.war
-*.ear
+/bin/
+
+# 로그
 *.log
 
-# IntelliJ IDEA
+# ==================== IntelliJ IDEA ====================
 .idea/
 *.iml
 *.iws
 *.ipr
 out/
 
-# Eclipse
+# ==================== Eclipse ====================
 .project
 .classpath
 .settings/
-bin/
 
-# VS Code
+# ==================== VS Code ====================
 .vscode/
 
-# Node / React
+# ==================== Node.js / React ====================
+# 의존성
 node_modules/
+
+# 로그
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-build/
+
+# React 빌드 결과물
+frontend/build/
+
+# 환경변수 (개인 설정)
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# macOS
+# ==================== macOS ====================
 .DS_Store
 
-# Database
+# ==================== Database ====================
 *.db
 *.sqlite
 
-# Application properties (개인 설정)
-application-local.properties
+# ==================== Application Properties ====================
+# 개인별 설정 파일만 무시
+backend/work/shiftmate/src/main/resources/application-local.properties
+backend/work/shiftmate/src/main/resources/application-dev.properties
 
-# Logs
+# ==================== Logs ====================
 logs/
-*.log
-
-# Package files
-package-lock.json
-
-# Backend util 폴더 (IntelliJ, JDK 등)
-backend/util/
 
 # Application properties (DB 비밀번호 포함)
 backend/work/shiftmate/src/main/resources/application.properties
