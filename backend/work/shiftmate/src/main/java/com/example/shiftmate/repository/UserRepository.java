@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     // 2. 회원가입용: 아이디 중복 확인
     // "SELECT count(*) FROM users WHERE user_id = ?" 와 비슷하게 존재 여부만 확인합니다.
     boolean existsByUserId(String userId);
+    //ㄹㄴㅇㄹㄴ
 }
