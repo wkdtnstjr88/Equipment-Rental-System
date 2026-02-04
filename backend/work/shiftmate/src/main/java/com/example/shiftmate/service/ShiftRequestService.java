@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -86,12 +87,52 @@ public class ShiftRequestService {
         try{
             List<ShiftRequestEntity> requests= shiftRequestRepository.findByShift_ShiftNumber(shiftNumber);
             return requests.stream()
-                    .map(this::converToDTO)
+                    .map(this::convertToDTO)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             e.printStackTrace();
             throw new ShiftMateException("申し込みリストの照会中エラー発生",e);
         }
     }
+
+    public ShiftRequestDTO processRequest(Long requestNumber, String status, Long processedByUserNumber){
+        try{
+            Optional<ShiftRequestEntity> requestOptional = shiftRequestRepository.findById(requestNumber);
+            if (!requestOptional.isPresent()){throw new ShiftMateException("申し込み履歴が見つかりません");}
+            ShiftRequestEntity request=requestOptional.get();
+            ShiftEntity shift=request.getShift();
+            if (!shift.getStore().getOwner().getUserNumber().equals(processedByUserNumber)){throw new ShiftMateException("該当店舗の店長のみ申し込みを処理できます。");}
+            if (!"待機中".equals(request.getStatus())){throw new ShiftMateException("既に処理された申し込みです。");}
+            if (!"承認".equals(status)&&!"断り".equals(status)){throw new ShiftMateException("無効な処理状態です。（承認または断りのみ可能）");}
+            if ("承認".equals(status)){if (shift.getCurrentEmployees()>= shift.getMaxEmployees()){throw new ShiftMateException("シフト定員が締め切られました。");}
+                shift.setCurrentEmployees(shift.getCurrentEmployees()+1);
+                shiftRepository.save(shift);}
+            request.setStatus(status);
+            request.setProcessedAt(LocalDateTime.now());
+            ShiftRequestEntity updatedRequest=shiftRequestRepository.save(request);
+            return convertToDTO(updatedRequest);}
+        catch (ShiftMateException e) {throw e;}
+        catch (Exception e) {e.printStackTrace(); throw new ShiftMateException("申し込み処理中エラー発生。");}
+    }
+
+    public List<ShiftRequestDTO> getUserRequests(Long userNumber){
+        try{List<ShiftRequestEntity> requests=shiftRequestRepository.findByUser_UserNumber(userNumber);
+            return requests.stream().map(this::convertToDTO).collect(Collectors.toList());}
+        catch (Exception e){e.printStackTrace(); throw new ShiftMateException("申し込みリストの照会中エラー発生", e);}}
+
+    private ShiftRequestDTO convertToDTO(ShiftRequestEntity entity){
+        return ShiftRequestDTO.builder()
+                .requestNumber(entity.getRequestNumber())
+                .shiftNumber(entity.getShift().getShiftNumber())
+                .userNumber(entity.getUser().getUserNumber())
+                .status(entity.getStatus())
+                .appliedAt(entity.getAppliedAt())
+                .processedAt(entity.getProcessedAt())
+                .build();}
+
 }
+
+
+
+
 
