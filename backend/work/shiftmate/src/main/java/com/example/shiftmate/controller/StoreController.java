@@ -20,6 +20,7 @@ public class StoreController {
     private final StoreService storeService;
 
     //　店舗登録
+    @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registersStore(
             @RequestBody Map<String, Object> requestBody,
             HttpServletRequest request) {
