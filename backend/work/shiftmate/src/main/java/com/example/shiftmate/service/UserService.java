@@ -36,14 +36,17 @@ public class UserService {
 
     public UserDTO registerUser(UserDTO userDTO) {
         try {
+            if (!"店長".equals(userDTO.getUserType()) && !"従業員".equals(userDTO.getUserType())) {
+                throw new ShiftMateException("ユーザータイプは「店長」または「従業員」のみ可能です");
+            }
+            String hashedPassword = passwordUtil.hashPassword(userDTO.getPassword());
+
             if (checkUserIdDuplicate(userDTO.getUserId())){
                 throw new ShiftMateException("既に使用中のIDです。");
             }
             if (!passwordUtil.validatePassword(userDTO.getPassword())){
                 throw new ShiftMateException("パスワードは８文字以上で、英字数字を含める必要があります。");
             }
-
-            String hashedPassword = passwordUtil.hashPassword(userDTO.getPassword());
 
             UserEntity userEntity = UserEntity.builder()
                     .userId(userDTO.getUserId())
@@ -53,6 +56,7 @@ public class UserService {
                     .build();
 
             UserEntity savedUser = userRepository.save(userEntity);
+
 
             return convertToDTO(savedUser);
         } catch (ShiftMateException e) {
