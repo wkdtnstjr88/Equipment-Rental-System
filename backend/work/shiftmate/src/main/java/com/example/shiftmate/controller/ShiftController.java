@@ -89,4 +89,23 @@ public class ShiftController {
         return ResponseEntity.ok(response);
     }
 
+    // [2] シフト情報更新 (PUT)
+    // アドレス: PUT /api/shifts/{shiftNumber}
+    @PutMapping("/{shiftNumber}")
+    public ResponseEntity<Map<String, Object>> updateShift(
+            @PathVariable Long shiftNumber,
+            @RequestBody ShiftDTO shiftDTO) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        // サービス層で更新ロジックを実行 (DTO -> エンティティ反映 -> 再びDTOに変換して返却)
+        ShiftDTO updatedShift = shiftService.updateShift(shiftNumber, shiftDTO);
+
+        response.put("success", true);
+        response.put("message", "シフトが正常に更新されました.");
+        response.put("shift", updatedShift);
+
+        return ResponseEntity.ok(response);
+    }
+
 }
