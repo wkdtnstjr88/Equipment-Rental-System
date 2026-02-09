@@ -141,6 +141,30 @@ public class ShiftService {
         }
     }
 
+    @Transactional // このアノテーションにより、エンティティの変更がDBに自動反映（ダーティチェック）されます。
+    public ShiftDTO updateShift(Long shiftNumber, ShiftDTO shiftDTO) {
+
+        // 1. リポジトリから既存のエンティティを照会 (DBからデータを取得)
+        ShiftEntity shiftEntity = shiftRepository.findById(shiftNumber)
+                .orElseThrow(() -> new RuntimeException("該当するシフトが見つかりません。"));
+
+        // 2. 外部キー(店舗)のリレーション処理
+        if (shiftDTO.getStoreNumber() != null) {
+            StoreEntity store = storeRepository.findById(shiftDTO.getStoreNumber())
+                    .orElseThrow(() -> new RuntimeException("店舗情報が見つかりません。"));
+            shiftEntity.setStore(store); // リレーションの紐付け
+        }
+
+        // 3. 一般フィールドの更新 (DTO -> エンティティ)
+        if (shiftDTO.getShiftDate() != null) shiftEntity.setShiftDate(shiftDTO.getShiftDate());
+        if (shiftDTO.getStartTime() != null) shiftEntity.setStartTime(shiftDTO.getStartTime());
+        if (shiftDTO.getEndTime() != null) shiftEntity.setEndTime(shiftDTO.getEndTime());
+        if (shiftDTO.getMaxEmployees() != null) shiftEntity.setMaxEmployees(shiftDTO.getMaxEmployees());
+
+        // 4. 結果返却のため、新しいDTOに変換 (エンティティ -> DTO)
+        return convertToDTO(shiftEntity);
+    }
+
     // isTimeOverlap Method ( 時間帯が重ねた場合 )
     private boolean isTimeOverlap(int start1, int end1, int start2, int end2) {
         if (start1 < start2 && end1 > start2) {
@@ -161,6 +185,8 @@ public class ShiftService {
 
         return false;
     }
+
+
 
     // Entity -> DTO 変換
     private ShiftDTO convertToDTO(ShiftEntity entity) {
