@@ -146,12 +146,12 @@ public class ShiftService {
 
         // 1. リポジトリから既存のエンティティを照会 (DBからデータを取得)
         ShiftEntity shiftEntity = shiftRepository.findById(shiftNumber)
-                .orElseThrow(() -> new RuntimeException("該当するシフトが見つかりません。"));
+                .orElseThrow(() -> new ShiftMateException("該当するシフトが見つかりません。"));
 
         // 2. 外部キー(店舗)のリレーション処理
         if (shiftDTO.getStoreNumber() != null) {
             StoreEntity store = storeRepository.findById(shiftDTO.getStoreNumber())
-                    .orElseThrow(() -> new RuntimeException("店舗情報が見つかりません。"));
+                    .orElseThrow(() -> new ShiftMateException("店舗情報が見つかりません。"));
             shiftEntity.setStore(store); // リレーションの紐付け
         }
 
@@ -163,6 +163,13 @@ public class ShiftService {
 
         // 4. 結果返却のため、新しいDTOに変換 (エンティティ -> DTO)
         return convertToDTO(shiftEntity);
+    }
+
+    @Transactional
+    public void deleteShift(Long shiftNumber) {
+        ShiftEntity shiftEntity = shiftRepository.findById(shiftNumber)
+                .orElseThrow(() -> new ShiftMateException("該当するシフトが見つかりません"));
+        shiftRepository.delete(shiftEntity);
     }
 
     // isTimeOverlap Method ( 時間帯が重ねた場合 )
