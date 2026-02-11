@@ -83,6 +83,108 @@ public class ShiftRequestService {
         }
     }
 
+    public ShiftRequestDTO updateShiftRequest(Long requestNumber, Long newShiftNumber, Long userNumber) {
+        try {
+            Optional<ShiftRequestEntity> shiftRequestOptional = shiftRequestRepository.findById(requestNumber);
+            if (!shiftRequestOptional.isPresent()) {
+                throw new ShiftMateException("申し込んだシフトが見つかりません。");
+            }
+            ShiftRequestEntity shiftRequest = shiftRequestOptional.get();
+            Optional<ShiftEntity> shiftOptional = shiftRepository.findById(newShiftNumber);
+            if (!shiftOptional.isPresent()) {
+                throw new ShiftMateException("新しいシフトが見つかりません。");
+            }
+            UserEntity user = shiftRequest.getUser();
+            if (!user.getUserNumber().equals(userNumber)) {
+                throw new ShiftMateException("ご自身のシフトのみ修正可能です。");
+            }
+            if (!"従業員".equals(user.getUserType())) {
+                throw new ShiftMateException("従業員専用の機能です。");
+            }
+            if ("承認".equals(shiftRequest.getStatus())) {
+                throw new ShiftMateException("承認済みのシフトは変更できません。店長に相談してください。");
+            }
+            ShiftEntity newShift = shiftOptional.get();
+            if (newShift.getCurrentEmployees() >= newShift.getMaxEmployees()) {
+                throw new ShiftMateException("定員が締め切られました。他の時間帯を選んでください。");
+            }
+            if (shiftRequestRepository.existsByShift_ShiftNumberAndUser_UserNumber(newShiftNumber, userNumber)) {
+                throw new ShiftMateException("既に申し込んだシフトです。");
+            }
+            Optional<ShiftRequestEntity> oldRequestOptional =
+                    shiftRequestRepository.findByRequestNumberAndUser_UserNumber(requestNumber, userNumber);
+
+            shiftRequest.setShift(newShift);
+            shiftRequest.setStatus("待機中");
+            ShiftRequestEntity savedRequest = shiftRequestRepository.save(shiftRequest);
+            return convertToDTO(savedRequest);
+            } catch (ShiftMateException e) {
+                System.out.println("X ShiftMateException: " + e.getMessage());
+                throw e;
+            } catch (Exception e) {
+                System.out.println("X Exception: " + e.getMessage());
+                e.printStackTrace();
+                throw new ShiftMateException("シフト修正中エラー発生", e);
+            }
+    }
+
+    public void deleteShiftRequest(Long requestNumber, Long userNumber) {
+        try {
+            Optional<ShiftRequestEntity> shiftRequestOptional = shiftRequestRepository.findById(requestNumber);
+            if (!shiftRequestOptional.isPresent()) {
+                throw new ShiftMateException("削除するシフト申請が見つかりません。");
+            }
+            ShiftRequestEntity request = shiftRequestOptional.get();
+            if (!request.getUser().getUserNumber().equals(userNumber)) {
+                throw new ShiftMateException("ご自身のシフトのみ削除可能です。");
+            }
+            if ("承認".equals(request.getStatus())) {
+                throw new ShiftMateException("承認済みのシフトは削除できません。店長に相談してください。");
+            }
+            shiftRequestRepository.delete(request);
+            } catch (ShiftMateException e) {
+                System.out.println("X ShiftMateException: " + e.getMessage());
+                throw e;
+            } catch (Exception e) {
+                System.out.println("X Exception: " + e.getMessage());
+                e.printStackTrace();
+                throw new ShiftMateException("シフトキャンセル中にエラーが発生しました。", e);
+            }
+    }
+
+    public void emergencyDeleteShift(Long requestNumber, Long userNumber) {
+        try {
+            Optional<UserEntity> managerOptional = userRepository.findById(userNumber);
+            if (!managerOptional.isPresent()) {
+                throw new ShiftMateException("管理者情報が見つかりません。");
+            }
+            UserEntity manager = managerOptional.get();
+            if (!"店長".equals(manager.getUserType())) {
+                throw new ShiftMateException("この機能は店長のみ使用可能です。");
+            }
+            Optional<ShiftRequestEntity> requestOptional = shiftRequestRepository.findById(requestNumber);
+            if (!requestOptional.isPresent()) {
+                throw new ShiftMateException("削除対象のシフト申請が見つかりません。");
+            }
+            ShiftRequestEntity request = requestOptional.get();
+            if ("承認".equals(request.getStatus())) {
+                ShiftEntity shift = request.getShift();
+                int currentCount = shift.getCurrentEmployees();
+                if (currentCount > 0) {
+                    shift.setCurrentEmployees(currentCount - 1);
+                    shiftRepository.save(shift);
+                }
+            }
+            shiftRequestRepository.delete(request);
+            } catch (ShiftMateException e) {
+                System.out.println("X ShiftMateException: " + e.getMessage());
+                throw e;
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ShiftMateException("緊急削除中にエラーが発生しました。", e);
+            }
+    }
+
     public List<ShiftRequestDTO> getShiftRequests(Long shiftNumber){
         try{
             List<ShiftRequestEntity> requests= shiftRequestRepository.findByShift_ShiftNumber(shiftNumber);

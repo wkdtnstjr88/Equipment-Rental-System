@@ -28,6 +28,26 @@ public class ShiftRequestController {
         response.put("message", "シフトの申し込みができました。");
         response.put("request", shiftRequest);
         return ResponseEntity.ok(response);}
+    @PutMapping("/update")
+    public ResponseEntity<Map<String, Object>> updateShift(@RequestBody Map<String, Long> requestBody, HttpServletRequest request){
+        Map<String, Object> response= new HashMap<>();
+        Long requestNumber = requestBody.get("requestNumber");
+        Long newShiftNumber = requestBody.get("newShiftNumber");
+        Long userNumber= (Long) request.getAttribute("userNumber");
+        ShiftRequestDTO shiftRequest=shiftRequestService.updateShiftRequest(requestNumber, newShiftNumber, userNumber);
+        response.put("success", true);
+        response.put("message", "シフトの修正ができました。");
+        response.put("request", shiftRequest);
+        return ResponseEntity.ok(response);}
+    @DeleteMapping("/delete")
+    public ResponseEntity<Map<String, Object>> deleteShift(@RequestBody Map<String, Long> requestBody, HttpServletRequest request){
+        Map<String, Object> response= new HashMap<>();
+        Long requestNumber = requestBody.get("requestNumber");
+        Long userNumber= (Long) request.getAttribute("userNumber");
+        shiftRequestService.deleteShiftRequest(requestNumber, userNumber);
+        response.put("success", true);
+        response.put("message", "シフト申請をキャンセルしました。");
+        return ResponseEntity.ok(response);}
     @PostMapping("/process")
     public ResponseEntity<Map<String, Object>> processRequest(@RequestBody Map<String, Object> requestBody, HttpServletRequest request){
         Map<String, Object> response=new HashMap<>();
@@ -38,6 +58,15 @@ public class ShiftRequestController {
         response.put("success", true);
         response.put("message", "シフトの申し込みが処理されきました。");
         response.put("request", shiftRequest);
+        return ResponseEntity.ok(response);}
+    @DeleteMapping("/manager/emergency")
+    public ResponseEntity<Map<String, Object>> emergencyDelete(@RequestBody Map<String, Long> requestBody, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        Long requestNumber = requestBody.get("requestNumber");
+        Long userNumber = (Long) request.getAttribute("userNumber");
+        shiftRequestService.emergencyDeleteShift(requestNumber, userNumber);
+        response.put("success", true);
+        response.put("message", "管理者権限でシフトを削除しました。");
         return ResponseEntity.ok(response);}
     @GetMapping("/shift/{shiftNumber}")
     public ResponseEntity<Map<String, Object>> getShiftRequests(@PathVariable Long shiftNumber){
