@@ -108,4 +108,16 @@ public class ShiftController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{shiftNumber}")
+        public ResponseEntity<Map<String, Object>> deleteShift(@PathVariable Long shiftNumber) {
+            Map<String, Object> response = new HashMap<>();
+
+            shiftService.deleteShift(shiftNumber);
+
+            response.put("success", true);
+            response.put("message", "シフトが正常に削除されました。");
+
+            return ResponseEntity.ok(response);
+        }
+
 }
