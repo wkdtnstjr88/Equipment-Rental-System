@@ -39,7 +39,7 @@ public class StoreController {
                 .build();
 
         StoreDTO registeredStore = storeService.registerStore(storeDTO);
-        response.put("success", "ture");
+        response.put("success", "true");
         response.put("message", "店舗が登録されました。");
         response.put("store", registeredStore);
         return ResponseEntity.ok(response);
@@ -52,7 +52,7 @@ public class StoreController {
         Long ownerUserNumber = (Long) request.getAttribute("userNumber");
 
         List<StoreDTO> stores = storeService.getOwnerStores(ownerUserNumber);
-        response.put("succes", true);
+        response.put("success", true);
         response.put("stores", stores);
         return ResponseEntity.ok(response);
     }
@@ -72,8 +72,52 @@ public class StoreController {
     public ResponseEntity<Map<String, Object>> getStore(@PathVariable Long storeNumber) {
         Map<String, Object> response = new HashMap<>();
         StoreDTO store = storeService.getStoreByNumber(storeNumber);
-        response.put("seccess", true);
+        response.put("success", true);
         response.put("store", store);
+        return ResponseEntity.ok(response);
+    }
+
+    // 店舗情報変更
+    @PutMapping("/{storeNumber}")
+    public ResponseEntity<Map<String, Object>> updateStores(
+            @PathVariable Long storeNumber,
+            @RequestBody Map<String, Object> requestBody,
+            HttpServletRequest request) {
+    Map<String, Object> response = new HashMap<>();
+    Long ownerUserNumber = (Long) request.getAttribute("userNumber");
+
+    // 変更するデータをDTOに込む
+         StoreDTO storeDTO = StoreDTO.builder()
+                .storeNumber(storeNumber)
+                .storeName((String) requestBody.get("storeName"))
+                .storeAddress((String) requestBody.get("storeAddress"))
+                .category((String) requestBody.get("category"))
+                .ownerUserNumber(ownerUserNumber)
+                .autoApprove((Boolean) requestBody.get("autoApprove"))
+                .build();
+
+         // Serviceで本人確認後、アップデートを実施
+        StoreDTO updatedStore = storeService.updateStore(storeNumber, storeDTO, ownerUserNumber);
+
+        response.put("success", true);
+        response.put("message", "店舗情報が更新されました。");
+        response.put("store", updatedStore);
+        return ResponseEntity.ok(response);
+    }
+
+    //　店舗削除
+    @DeleteMapping("/{storeNumber}")
+    public ResponseEntity<Map<String, Object>> deleteStroe(
+            @PathVariable Long storeNumber,
+            HttpServletRequest request){
+
+        Map<String, Object> response = new HashMap<>();
+        Long ownerUserNumber = (Long) request.getAttribute("userNumber");
+
+        storeService.deleteStore(storeNumber, ownerUserNumber);
+
+        response.put("success", true);
+        response.put("message", "店舗が削除されました。");
         return ResponseEntity.ok(response);
     }
 }
