@@ -8,6 +8,7 @@ import com.example.shiftmate.repository.StoreRepository;
 import com.example.shiftmate.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.Store;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -98,6 +99,63 @@ public class StoreService  {
         }
     }
 
+
+
+    //　店舗情報変更
+    public StoreDTO updateStore(Long storeNumber, StoreDTO storeDTO, Long ownerUserNumber){
+        try{
+            // 1.　店舗存在確認
+            StoreEntity storeEntity = storeRepository.findById(storeNumber)
+                    .orElseThrow(() -> new ShiftMateException("店舗が見つかりません。"));
+            // 2. 本人確認
+            if (!storeEntity.getOwner().getUserNumber().equals(ownerUserNumber)){
+                throw new ShiftMateException("店舗情報を修正する権限がありません。");
+            }
+
+            // 3. 情報アップデート(Entity 内部の値を変更)
+            StoreEntity updatedStore = StoreEntity.builder()
+                    .storeNumber(storeEntity.getStoreNumber())
+                    .storeName(storeDTO.getStoreName())
+                    .storeAddress(storeDTO.getStoreAddress())
+                    .category(storeDTO.getCategory())
+                    .owner(storeEntity.getOwner())
+                    .createdAt(storeEntity.getCreatedAt())
+                    .updatedAt(storeEntity.getUpdatedAt())
+                    .autoApprove(storeDTO.getAutoApprove() !=null ? storeDTO.getAutoApprove() : storeEntity.getAutoApprove())
+                    .build();
+
+            // 4. 保存及びDTO返還
+            return convertToDTO(storeRepository.save(updatedStore));
+
+        } catch (ShiftMateException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ShiftMateException("店舗修正中エラーが発生しました。", e);
+        }
+    }
+
+    // 店舗削除
+    public void deleteStore(Long storeNumber, Long ownerUserNumber) {
+        try {
+            // 1. 店舗存在確認
+            StoreEntity storeEntity = storeRepository.findById(storeNumber)
+                    .orElseThrow(() -> new ShiftMateException("店舗が見つかりません。"));
+
+            // 2. 権限確認
+            if (!storeEntity.getOwner().getUserNumber().equals(ownerUserNumber)){
+                throw new ShiftMateException(("店舗を削除する権限がありません。"));
+            }
+
+            // 3. 削除実行
+            storeRepository.delete(storeEntity);
+        } catch (ShiftMateException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ShiftMateException("店舗削除中にエラー発生しました。");
+        }
+    }
     //Entity -> 変換
     private StoreDTO convertToDTO(StoreEntity entity){
         return StoreDTO.builder()
@@ -106,6 +164,7 @@ public class StoreService  {
                 .storeAddress(entity.getStoreAddress())
                 .category(entity.getCategory())
                 .ownerUserNumber(entity.getOwner().getUserNumber())
+                .createdAt(entity.getCreatedAt())
                 .autoApprove(entity.getAutoApprove())
                 .build();
     }
