@@ -165,6 +165,7 @@ public class StoreService  {
                 .category(entity.getCategory())
                 .ownerUserNumber(entity.getOwner().getUserNumber())
                 .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .autoApprove(entity.getAutoApprove())
                 .build();
     }
