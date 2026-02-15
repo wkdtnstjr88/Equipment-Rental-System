@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -112,5 +113,31 @@ public class UserService {
                 .name(entity.getName())
                 .userType(entity.getUserType())
                 .build();
+    }
+
+    // 타입별 회원 조회
+    public List<UserDTO> getUsersType(String type) {
+        List<UserEntity> users = userRepository.findByUserType(type);
+
+        return users.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 회원검색
+    public List<UserDTO> searchUsers(String keyword) {
+        List<UserEntity> users = userRepository.findByNameContaining(keyword);
+
+        return users.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    //회원 아이디 검색
+    public List<UserDTO> searchUsersById(String keyword) {
+        List<UserEntity> users = userRepository.findByUserIdContaining(keyword);
+
+        return users.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 }
