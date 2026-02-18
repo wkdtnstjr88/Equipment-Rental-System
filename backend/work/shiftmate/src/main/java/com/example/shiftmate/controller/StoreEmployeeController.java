@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3030")
 public class StoreEmployeeController{
-// 260205 SEODAM CHO TYPED
+// 260205
     private final StoreEmployeeService storeEmployeeService;
 
     // 店舗スタッフ継承要請

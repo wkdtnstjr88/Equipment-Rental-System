@@ -184,4 +184,48 @@ public class StoreEmployeeService {
                 .build();
     }
 
+    // 店舗の全従業員照会（全ての状態）-- 2026.03.09 Seodam Cho
+    public List<StoreEmployeeDTO> getEmployeesByStore(Long storeNumber) {
+        try {
+            List<StoreEmployeeEntity> employees = storeEmployeeRepository
+                    .findByStore_StoreNumber(storeNumber);
+            return employees.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ShiftMateException("従業員リスト照会中エラー発生", e);
+        }
+    }
+
+    // 従業員解雇（店長のみ可能）
+    public void fireEmployee(Long relationNumber, Long ownerUserNumber) {
+        try {
+            // 承認要請確認
+            Optional<StoreEmployeeEntity> employeeOptional = storeEmployeeRepository.findById(relationNumber);
+            if (!employeeOptional.isPresent()) {
+                throw new ShiftMateException("従業員関係を探せません。");
+            }
+
+            StoreEmployeeEntity employee = employeeOptional.get();
+
+            // 処理者が店舗の店長なのか確認
+            if (!"承認".equals(employee.getStatus())) {
+                throw new ShiftMateException("該当店舗の店長だけが従業員を解雇できます。");
+            }
+
+            // 承認済みの従業員のみ解雇可能
+            if (!"承認".equals(employee.getStatus())) {
+                throw new ShiftMateException("承認済みの従業員のみ解雇できます。");
+            }
+
+            storeEmployeeRepository.delete(employee);
+
+        } catch (ShiftMateException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ShiftMateException("解雇処理中エラー発生", e);
+        }
+    }
 }
