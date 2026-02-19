@@ -99,4 +99,13 @@ public class StoreEmployeeController{
         storeEmployeeService.fireEmployee(relationNumber, ownerUserNumber);
         return ResponseEntity.ok().build();
     }
+    // 承認待機中の要請取り消し API
+    @DeleteMapping("/employees/{relationNumber}/cancel")
+    public ResponseEntity<Void> cancelPendingRequest(
+            @PathVariable Long relationNumber,
+            @RequestParam Long userNumber
+    ) {
+        storeEmployeeService.cancelPendingRequest(relationNumber, userNumber);
+        return ResponseEntity.ok().build();
+    }
 }

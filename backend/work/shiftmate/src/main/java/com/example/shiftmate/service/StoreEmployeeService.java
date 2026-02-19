@@ -228,4 +228,31 @@ public class StoreEmployeeService {
             throw new ShiftMateException("解雇処理中エラー発生", e);
         }
     }
+    // 承認待機中の申請を取り消し (申請者のみ取り消し可能)
+    public void cancelPendingRequest(Long relationNumber, Long userNumber) {
+        try {
+            // 1. 申請の存在確認
+            StoreEmployeeEntity employee = storeEmployeeRepository.findById(relationNumber)
+                    .orElseThrow(() -> new ShiftMateException("該当要請を確認できます。"));
+
+            // 2. 本人確認 (申請を送った使用者本人かを確認)
+            if (!employee.getUser().getUserNumber().equals(userNumber)) {
+                throw new ShiftMateException("本人のみ取り消しできます。");
+            }
+
+            // 3. 状態確認 (必ず '待機中'の状態である時のみ取り消し可能)
+            if (!"待機中".equals(employee.getStatus())) {
+                throw new ShiftMateException("待機中の要請のみ処理できます。 既に処理された要請は取り消しできません。");
+            }
+
+            // 4. 削除処理
+            storeEmployeeRepository.delete(employee);
+
+        } catch (ShiftMateException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ShiftMateException("要請取り消し中エラー発生", e);
+        }
+    }
 }
