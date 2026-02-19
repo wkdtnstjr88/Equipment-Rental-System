@@ -210,7 +210,7 @@ public class StoreEmployeeService {
             StoreEmployeeEntity employee = employeeOptional.get();
 
             // 処理者が店舗の店長なのか確認
-            if (!"承認".equals(employee.getStatus())) {
+            if (!employee.getStore().getOwner().getUserNumber().equals(ownerUserNumber)) {
                 throw new ShiftMateException("該当店舗の店長だけが従業員を解雇できます。");
             }
 
@@ -228,6 +228,7 @@ public class StoreEmployeeService {
             throw new ShiftMateException("解雇処理中エラー発生", e);
         }
     }
+
     // 承認待機中の申請を取り消し (申請者のみ取り消し可能)
     public void cancelPendingRequest(Long relationNumber, Long userNumber) {
         try {

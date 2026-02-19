@@ -91,13 +91,22 @@ public class StoreEmployeeController{
         response.put("relations", relations);
         return ResponseEntity.ok(response);
     }
+    // 従業員解雇（店長のみ許可）
     @DeleteMapping("/employees/{relationNumber}")
-    public ResponseEntity<Void> fireEmployee(
+    public ResponseEntity<Map<String, Object>> fireEmployee(
             @PathVariable Long relationNumber,
             @RequestParam Long ownerUserNumber
     ) {
+        //　１．サービス呼び出し（ビズネスロジック実行）
         storeEmployeeService.fireEmployee(relationNumber, ownerUserNumber);
-        return ResponseEntity.ok().build();
+
+        //　２．応答データ生成
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "従業員が解雇に成功しました。");
+
+        //　３．応答変換（200　OKとともにJSONメッセージ転送
+        return ResponseEntity.ok(response);
     }
     // 承認待機中の要請取り消し API
     @DeleteMapping("/employees/{relationNumber}/cancel")
@@ -106,6 +115,11 @@ public class StoreEmployeeController{
             @RequestParam Long userNumber
     ) {
         storeEmployeeService.cancelPendingRequest(relationNumber, userNumber);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "承認要請が取り消しされました。");
+
         return ResponseEntity.ok().build();
     }
 }
