@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3030")
 public class StoreEmployeeController{
-// 260205 SEODAM CHO TYPED
+// 260205
     private final StoreEmployeeService storeEmployeeService;
 
     // 店舗スタッフ継承要請
@@ -89,6 +89,23 @@ public class StoreEmployeeController{
         List<StoreEmployeeDTO> relations = storeEmployeeService.getUserStoreRelations(userNumber);
         response.put("success", true);
         response.put("relations", relations);
+        return ResponseEntity.ok(response);
+    }
+    // 従業員解雇（店長のみ許可）
+    @DeleteMapping("/employees/{relationNumber}")
+    public ResponseEntity<Map<String, Object>> fireEmployee(
+            @PathVariable Long relationNumber,
+            @RequestParam Long ownerUserNumber
+    ) {
+        //　１．サービス呼び出し（ビズネスロジック実行）
+        storeEmployeeService.fireEmployee(relationNumber, ownerUserNumber);
+
+        //　２．応答データ生成
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "従業員が解雇に成功しました。");
+
+        //　３．応答変換（200　OKとともにJSONメッセージ転送
         return ResponseEntity.ok(response);
     }
 }
