@@ -91,4 +91,12 @@ public class StoreEmployeeController{
         response.put("relations", relations);
         return ResponseEntity.ok(response);
     }
+    @DeleteMapping("/employees/{relationNumber}")
+    public ResponseEntity<Void> fireEmployee(
+            @PathVariable Long relationNumber,
+            @RequestParam Long ownerUserNumber
+    ) {
+        storeEmployeeService.fireEmployee(relationNumber, ownerUserNumber);
+        return ResponseEntity.ok().build();
+    }
 }

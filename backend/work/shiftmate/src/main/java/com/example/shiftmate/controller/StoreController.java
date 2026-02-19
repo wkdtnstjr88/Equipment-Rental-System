@@ -1,6 +1,7 @@
 package com.example.shiftmate.controller;
 
 import com.example.shiftmate.dto.StoreDTO;
+import com.example.shiftmate.service.StoreEmployeeService;
 import com.example.shiftmate.service.StoreService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class StoreController {
 
     private final StoreService storeService;
+    private final StoreEmployeeService storeEmployeeService;
 
     //　店舗登録
     @PostMapping("/register")
