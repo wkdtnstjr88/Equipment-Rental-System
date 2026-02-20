@@ -16,6 +16,9 @@ public class StoreEmployeeDTO {
     private Long storeNumber;
     private Long userNumber;
     private String status;
+//    //下記の2行追加しました（reason, adminComment)
+//    private String reason;
+//    private String adminComment;
     private LocalDateTime requestedAt;
     private LocalDateTime processedAt;
 }
