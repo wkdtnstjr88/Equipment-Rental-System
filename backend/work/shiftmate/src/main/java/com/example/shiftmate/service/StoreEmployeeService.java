@@ -145,6 +145,23 @@ public class StoreEmployeeService {
         }
     }
 
+    // [追加] 管理者向け: 届いているシフトの変更又はキャンセルの申請を照会
+    // (statusが'変更要請'になっているもの)
+    public List<StoreEmployeeDTO> getShiftChangeRequests(Long storeNumber) {
+        try {
+            List<StoreEmployeeEntity> requests = storeEmployeeRepository
+                    .findByStore_StoreNumberAndStatus(storeNumber, "変更要請");
+
+            return requests.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ShiftMateException("変更要請照会中エラー発生", e);
+        }
+    }
+
+
     // 店舗の承認待機中である要請照会
     public List<StoreEmployeeDTO> getPendingRequests(Long storeNumber) {
         try {
@@ -158,6 +175,8 @@ public class StoreEmployeeService {
             throw new ShiftMateException("待機中の要請の照会中エラー発生", e);
         }
     }
+
+
 
     // ユーザーの全ての店舗関係照会
     public List<StoreEmployeeDTO> getUserStoreRelations(Long userNumber) {
@@ -179,6 +198,9 @@ public class StoreEmployeeService {
                 .storeNumber(entity.getStore().getStoreNumber())
                 .userNumber(entity.getUser().getUserNumber())
                 .status(entity.getStatus())
+                // 下の2行追加しておきました。ご確認願います。（reason, adminComment)
+                .reason(entity.getReason())
+                .adminComment(entity.getAdminComment())
                 .requestedAt(entity.getRequestedAt())
                 .processedAt(entity.getProcessedAt())
                 .build();
@@ -222,6 +244,8 @@ public class StoreEmployeeService {
             e.printStackTrace();
             throw new ShiftMateException("解雇処理中エラー発生", e);
         }
+
+
     }
 
     // シフトの変更及び取り消し (従業員が理由と共に転送)
@@ -255,7 +279,8 @@ public class StoreEmployeeService {
                 .orElseThrow(() -> new ShiftMateException("該当する記録が見つかりません。"));
 
         // 状態を再び '承認'に変えて管理者のコメント保存
-        request.setStatus("承認不可");
+        request.setStatus("承認");
+        // status=承認,以外は「店舗の全従業員照会」で確認できないため実際には’不可’でもシステム上’承認’します。
         request.setAdminComment(adminComment);
 
         storeEmployeeRepository.save(request);
@@ -269,4 +294,6 @@ public class StoreEmployeeService {
         // 承認された際にはDBからデータ自体を削除 (DBから行を削除)
         storeEmployeeRepository.delete(request);
     }
+
+
 }

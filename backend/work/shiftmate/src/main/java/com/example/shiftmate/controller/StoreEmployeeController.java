@@ -81,6 +81,14 @@ public class StoreEmployeeController{
         return ResponseEntity.ok(response);
     }
 
+    // [追加] 管理者向け: 当店舗に届いているシフトの変更又は取り消し申請のリスト閲覧
+    @GetMapping("/store/{storeNumber}/shift-requests")
+    public ResponseEntity<List<StoreEmployeeDTO>> getShiftRequests(@PathVariable Long storeNumber) {
+        // サービスから getShiftChangeRequests メソッドを呼び出し
+        List<StoreEmployeeDTO> requests = storeEmployeeService.getShiftChangeRequests(storeNumber);
+        return ResponseEntity.ok(requests);
+    }
+
     // ユーザーのすべての店舗関係照会
     @GetMapping("/user")
     public ResponseEntity<Map<String, Object>> getUserStoreRelations(HttpServletRequest request){
