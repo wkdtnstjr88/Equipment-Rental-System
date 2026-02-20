@@ -83,5 +83,12 @@ public class ShiftRequestController {
         response.put("success", true);
         response.put("request", requests);
         return ResponseEntity.ok(response);}
+    @GetMapping("/shift/store/{storeNumber}")
+    public ResponseEntity<Map<String, Object>> getStoreRequests(@PathVariable Long storeNumber){
+        Map<String, Object> response =new HashMap<>();
+        List<ShiftRequestDTO> requests=shiftRequestService.getStoreRequests(storeNumber);
+        response.put("success", true);
+        response.put("request", requests);
+        return ResponseEntity.ok(response);}
 
 }
