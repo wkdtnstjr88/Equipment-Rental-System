@@ -49,12 +49,12 @@ public class StoreEmployeeEntity {
     @Column(name = "admin_comment", length = 500)
     private String adminComment;
 
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-    public void setStatus(String status) {
-        this.status = status;
-    }
+//    public void setReason(String reason) {
+//        this.reason = reason;
+//    }
+//    public void setStatus(String status) {
+//        this.status = status;
+//    }
 
     @PrePersist
     protected void onCreate() {
