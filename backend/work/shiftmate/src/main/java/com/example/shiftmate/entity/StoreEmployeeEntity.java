@@ -44,6 +44,18 @@ public class StoreEmployeeEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "reason", length = 500)
+    private String reason;
+    @Column(name = "admin_comment", length = 500)
+    private String adminComment;
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

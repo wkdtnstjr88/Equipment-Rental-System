@@ -56,7 +56,7 @@ public class StoreEmployeeController{
                 relationNumber, status, processedByUserNumber
         );
         response.put("success", true);
-        response.put("message", "要請が処理されました。");
+        response.put("message", "申請が処理されました。");
         response.put("relation", employeeDTO);
         return ResponseEntity.ok(response);
     }
@@ -91,7 +91,7 @@ public class StoreEmployeeController{
         response.put("relations", relations);
         return ResponseEntity.ok(response);
     }
-    // 従業員解雇（店長のみ許可）
+    // 従業員の解雇（管理者のみ許可）
     @DeleteMapping("/employees/{relationNumber}")
     public ResponseEntity<Map<String, Object>> fireEmployee(
             @PathVariable Long relationNumber,
@@ -106,6 +106,51 @@ public class StoreEmployeeController{
         response.put("message", "従業員が解雇に成功しました。");
 
         //　３．応答変換（200　OKとともにJSONメッセージ転送
+        return ResponseEntity.ok(response);
+    }
+
+    // 承認待機状態の要請取り消し又は承認済みのシフトの取り消し申請
+    @PatchMapping("/{relationNumber}/cancel-request")
+    public ResponseEntity<?> requestCancel(
+            @PathVariable Long relationNumber,
+            @RequestParam Long userNumber,
+            @RequestBody Map<String, String> body) {
+
+        // 1. JSON Bodyから取り消しの理由抽出
+        String reason = body.get("reason");
+
+        // 2. サービス呼び出し
+        storeEmployeeService.requestCancelWithReason(relationNumber, userNumber, reason);
+
+        // 3. 応答変換
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "取り消し申請の受付に成功しました。");
+
+        return ResponseEntity.ok(response);
+    }
+    // 管理者が呼び出しするエンドポイント
+    @PatchMapping("/{relationNumber}/reject")
+    public ResponseEntity<?> rejectRequest(
+            @PathVariable Long relationNumber,
+            @RequestBody Map<String, String> body) {
+
+        String adminComment = body.get("adminComment");
+        storeEmployeeService.rejectCancelRequest(relationNumber, adminComment);
+
+        return ResponseEntity.ok(Map.of("success", true, "message", "変更不可処理が完了されました。"));
+    }
+
+    // 店長からの従業員シフト変更申請を承認 (データ削除処理)
+    @DeleteMapping("/{relationNumber}/approve")
+    public ResponseEntity<?> approveRequest(@PathVariable Long relationNumber) {
+
+        storeEmployeeService.approveCancelRequest(relationNumber);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "シフトの取り消し申請が承認されました。");
+
         return ResponseEntity.ok(response);
     }
 }

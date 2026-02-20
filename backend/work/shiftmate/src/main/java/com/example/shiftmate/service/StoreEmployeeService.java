@@ -198,7 +198,7 @@ public class StoreEmployeeService {
         }
     }
 
-    // 従業員解雇（店長のみ可能）
+    // 従業員解雇（管理者ー店長のみ可能）
     public void fireEmployee(Long relationNumber, Long ownerUserNumber) {
         try {
             // 承認要請確認
@@ -208,11 +208,6 @@ public class StoreEmployeeService {
             }
 
             StoreEmployeeEntity employee = employeeOptional.get();
-
-            // 処理者が店舗の店長なのか確認
-            //if (!employee.getStore().getOwner().getUserNumber().equals(ownerUserNumber)) {
-            //    throw new ShiftMateException("該当店舗の店長だけが従業員を解雇できます。");
-            //}
 
             // 承認済みの従業員のみ解雇可能
             if (!"承認".equals(employee.getStatus())) {
@@ -227,5 +222,51 @@ public class StoreEmployeeService {
             e.printStackTrace();
             throw new ShiftMateException("解雇処理中エラー発生", e);
         }
+    }
+
+    // シフトの変更及び取り消し (従業員が理由と共に転送)
+    // 従業員側からの変更申請　
+    // PATCH http://localhost:8080/api/employees/{relationNo}/cancel-request?userNumber={userNo}
+    public void requestCancelWithReason(Long relationNumber, Long userNumber, String reason) { // userNumberを追加
+        StoreEmployeeEntity request = storeEmployeeRepository.findById(relationNumber)
+                .orElseThrow(() -> new ShiftMateException("該当する記録が見つかりません。")); // メッセージ修正
+
+        // 1. 本人確認ロジックを追加 (セキュリティのため重要)
+        if (!request.getUser().getUserNumber().equals(userNumber)) {
+            throw new ShiftMateException("本人の申請のみ変更可能です。");
+        }
+
+        // 2. すでに承認された従業員のみ変更申請可能
+        if (!"承認".equals(request.getStatus())) {
+            throw new ShiftMateException("確定されたスケジュールのみ変更可能です。");
+        }
+
+        // 3. 状態を’変更要請’に変えてから理由を保存
+        request.setStatus("変更要請");
+        request.setReason(reason);
+
+        storeEmployeeRepository.save(request);
+    }
+    // シフトのキャンセルを管理者から断る時コメントを残すメソッド。
+    // http://localhost:8080/api/store-employees/4/reject -> 4はrelation_number
+    @Transactional
+    public void rejectCancelRequest(Long relationNumber, String adminComment) {
+        StoreEmployeeEntity request = storeEmployeeRepository.findById(relationNumber)
+                .orElseThrow(() -> new ShiftMateException("該当する記録が見つかりません。"));
+
+        // 状態を再び '承認'に変えて管理者のコメント保存
+        request.setStatus("承認不可");
+        request.setAdminComment(adminComment);
+
+        storeEmployeeRepository.save(request);
+    }
+    //管理者がシフト変更を承認する時
+    @Transactional
+    public void approveCancelRequest(Long relationNumber) {
+        StoreEmployeeEntity request = storeEmployeeRepository.findById(relationNumber)
+                .orElseThrow(() -> new ShiftMateException("該当記録が見つかりません。"));
+
+        // 承認された際にはDBからデータ自体を削除 (DBから行を削除)
+        storeEmployeeRepository.delete(request);
     }
 }
