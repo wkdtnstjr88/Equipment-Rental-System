@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.time.LocalDate; // 追加
 
 @Service
 @RequiredArgsConstructor
@@ -203,14 +204,17 @@ public class StoreEmployeeService {
 //                .adminComment(entity.getAdminComment())
                 .requestedAt(entity.getRequestedAt())
                 .processedAt(entity.getProcessedAt())
+                // 下の2行追加
+                .isRetired(entity.getIsRetired())
+                .exitDate(entity.getExitDate())
                 .build();
     }
 
-    // 店舗の全従業員照会（全ての状態）-- 2026.03.09 Seodam Cho
+    // 店舗の全従業員照会（全ての状態）
     public List<StoreEmployeeDTO> getEmployeesByStore(Long storeNumber) {
         try {
             List<StoreEmployeeEntity> employees = storeEmployeeRepository
-                    .findByStore_StoreNumber(storeNumber);
+                    .findByStore_StoreNumberAndStatusAndIsRetiredFalse(storeNumber, "承認");//　修正されました
             return employees.stream()
                     .map(this::convertToDTO)
                     .collect(Collectors.toList());
@@ -220,7 +224,7 @@ public class StoreEmployeeService {
         }
     }
 
-    // 従業員解雇（管理者ー店長のみ可能）
+    // 従業員解雇（管理者：店長のみ可能）
     public void fireEmployee(Long relationNumber, Long ownerUserNumber) {
         try {
             // 承認要請確認
@@ -236,7 +240,12 @@ public class StoreEmployeeService {
                 throw new ShiftMateException("承認済みの従業員のみ解雇できます。");
             }
 
-            storeEmployeeRepository.delete(employee);
+        //  storeEmployeeRepository.delete(employee);
+            //  -> 最初、退社を丸ごと削除するようにしたのをコメンタリー処理
+            //　下記の3行追加　→　退社記録保存のため。
+            employee.setIsRetired(true);
+            employee.setExitDate(LocalDate.now());
+            storeEmployeeRepository.save(employee);
 
         } catch (ShiftMateException e) {
             throw e;
@@ -247,6 +256,7 @@ public class StoreEmployeeService {
 
 
     }
+
 
     // シフトの変更及び取り消し (従業員が理由と共に転送)
     // 従業員側からの変更申請　

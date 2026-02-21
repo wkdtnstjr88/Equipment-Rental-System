@@ -9,7 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface StoreEmployeeRepository extends JpaRepository<StoreEmployeeEntity, Long> {
-    List<StoreEmployeeEntity> findByStore_StoreNumber(Long storeNumber);
+    // StoreNumberにAndIsRetiredFalseを追加
+    List<StoreEmployeeEntity> findByStore_StoreNumberAndStatusAndIsRetiredFalse(Long storeNumber, String status);
     List<StoreEmployeeEntity> findByUser_UserNumber(Long userNumber);
     Optional<StoreEmployeeEntity> findByStore_StoreNumberAndUser_UserNumber(Long storeNumber, Long userNumber);
     boolean existsByStore_StoreNumberAndUser_UserNumber(Long storeNumber, Long userNumber);

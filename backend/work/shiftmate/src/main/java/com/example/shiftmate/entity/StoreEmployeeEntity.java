@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
+import java.time.LocalDate; // 追加
 
 @Entity
 @Table(name = "store_employees")
@@ -48,6 +48,14 @@ public class StoreEmployeeEntity {
     private String reason;
     @Column(name = "admin_comment", length = 500)
     private String adminComment;
+
+    // 下記の変数2つ追加しました。（Builder, Boolean、LocalDate）
+    @Builder.Default
+    @Column(name = "is_retired")
+    private Boolean isRetired = false;
+
+    @Column(name = "exit_date")
+    private LocalDate exitDate;
 
 //    public void setReason(String reason) {
 //        this.reason = reason;

@@ -100,7 +100,7 @@ public class StoreEmployeeController{
         return ResponseEntity.ok(response);
     }
     // 従業員の解雇（管理者のみ許可）
-    @DeleteMapping("/employees/{relationNumber}")
+    @PatchMapping("/employees/{relationNumber}/fire") // Delete -> Patch
     public ResponseEntity<Map<String, Object>> fireEmployee(
             @PathVariable Long relationNumber,
             @RequestParam Long ownerUserNumber
