@@ -21,7 +21,7 @@ public class ShiftController {
 
     private final ShiftService shiftService;
 
-    // シフト生成.
+    // シフト生成...
     @PostMapping("/create")
     public ResponseEntity<Map<String,Object>> createShift(
             @RequestBody Map<String, Object> requestBody,
