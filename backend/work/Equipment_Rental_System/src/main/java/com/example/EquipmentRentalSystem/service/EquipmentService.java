@@ -3,6 +3,7 @@ package com.example.EquipmentRentalSystem.service;
 import com.example.EquipmentRentalSystem.dto.EquipmentItemResponseDTO;
 import com.example.EquipmentRentalSystem.dto.EquipmentResponseDTO; // DTO 임포트 필요
 import com.example.EquipmentRentalSystem.entity.Equipment;
+import com.example.EquipmentRentalSystem.repository.EquipmentItemRepository;
 import com.example.EquipmentRentalSystem.repository.EquipmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 public class EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
+    private final EquipmentItemRepository equipmentItemRepository;
 
     // [수정됨] 모든 장비를 DTO 리스트로 변환해서 가져오기
     public List<EquipmentResponseDTO> getAllEquipments() {
@@ -46,6 +48,19 @@ public class EquipmentService {
                         item.getSerialNumber(),
                         item.getStatus(),
                         equipment.getName() // 부모 엔티티의 이름을 가져와서 담아줌
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<EquipmentItemResponseDTO> getAvailableItems() {
+        // 모든 기기 아이템 중 상태가 "AVAILABLE"인 것만 필터링해서 DTO로 변환
+        return equipmentItemRepository.findAll().stream()
+                .filter(item -> "AVAILABLE".equals(item.getStatus()))
+                .map(item -> new EquipmentItemResponseDTO(
+                        item.getId(),
+                        item.getSerialNumber(),
+                        item.getStatus(),
+                        item.getEquipment().getName()
                 ))
                 .collect(Collectors.toList());
     }

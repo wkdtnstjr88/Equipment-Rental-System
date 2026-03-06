@@ -18,7 +18,7 @@ public class EquipmentController {
     @GetMapping("/equipments")
     public String list(Model model) {
         // 서비스에게 목록을 가져오라고 시킵니다.
-        model.addAttribute("equipmentList", equipmentService.findAll());
+        model.addAttribute("equipmentList", equipmentService.getAllEquipments());
         return "equipmentList";
     }
 
