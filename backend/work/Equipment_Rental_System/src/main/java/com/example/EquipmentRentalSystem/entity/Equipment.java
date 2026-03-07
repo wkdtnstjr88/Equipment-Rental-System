@@ -39,4 +39,11 @@ public class Equipment {
         }
         return count;
     }
+
+    public long getTotalCount() {
+        if (this.items == null) {
+            return 0;
+        }
+        return this.items.size(); // 리스트에 담긴 전체 개수 반환
+    }
 }

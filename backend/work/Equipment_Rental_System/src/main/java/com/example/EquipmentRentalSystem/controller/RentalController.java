@@ -34,13 +34,20 @@ public class RentalController {
         return "historyList";
     }
 
-    // 1. 대여 신청 페이지 보여주기 (GET)
     @GetMapping("/rentals/new")
-    public String rentalForm(Model model) {
-        // 대여 가능한 아이템 리스트를 가져와서 모델에 담음
-        List<EquipmentItemResponseDTO> availableItems = equipmentService.getAvailableItems();
+    public String newRentalForm(@RequestParam(value = "equipmentId", required = false) Long equipmentId, Model model) {
+        List<EquipmentItemResponseDTO> availableItems;
+
+        if (equipmentId != null) {
+            // 🔥 특정 장비 ID가 넘어온 경우, 해당 모델의 대여 가능한 아이템만 가져옵니다.
+            availableItems = equipmentService.getAvailableItemsByEquipmentId(equipmentId);
+        } else {
+            // ID가 없는 경우(직접 접속 등) 기존처럼 모든 대여 가능 아이템을 가져옵니다.
+            availableItems = equipmentService.getAllAvailableItems();
+        }
+
         model.addAttribute("items", availableItems);
-        return "rentalForm";
+        return "rentalForm"; // 대여 신청 페이지 이름
     }
 
     @PostMapping("/rentals/new")

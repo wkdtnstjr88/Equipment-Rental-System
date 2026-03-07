@@ -2,41 +2,69 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>장비 목록 조회</title>
+    <title>장비 렌탈 현황</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card { transition: transform 0.2s; border-radius: 12px; }
+        .card:hover { transform: translateY(-5px); }
+        .badge-category { font-size: 0.75rem; padding: 5px 10px; }
+    </style>
 </head>
 <body class="bg-light">
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-dark">📦 장비 렌탈 현황</h2>
-        <a href="/" class="btn btn-outline-secondary">홈으로</a>
+        <div class="btn-group shadow-sm">
+            <a href="/" class="btn btn-outline-secondary">홈으로</a>
+            <a href="/rentals/history" class="btn btn-outline-dark">대여 내역</a>
+        </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-        <div class="col" th:each="equipment : ${equipmentList}">
-            <div class="card shadow-sm h-100">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="equipment : ${equipments}">
+            <div class="card shadow-sm h-100 border-0">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
-                        <span class="badge bg-info text-dark" th:text="${equipment.category}">카테고리</span>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                        <span class="badge bg-info text-dark badge-category" th:text="${equipment.category}">카테고리</span>
                         <span class="text-muted small">ID: <span th:text="${equipment.id}">1</span></span>
                     </div>
-                    <h5 class="card-title fw-bold" th:text="${equipment.name}">장비명</h5>
-                    <p class="card-text text-primary fs-5 fw-semibold">
+
+                    <h5 class="card-title fw-bold mb-3" th:text="${equipment.name}">장비명</h5>
+
+                    <p class="card-text text-primary fs-5 fw-semibold mb-3">
                         일일 <span th:text="${#numbers.formatInteger(equipment.dailyPrice, 0, 'COMMA')}">50,000</span>원
                     </p>
-                    <div class="bg-light p-3 rounded">
-                        <p class="mb-1 small text-secondary">현재 보유 재고</p>
-                        <h4 class="mb-0" th:text="${equipment.availableCount} + ' 대'">3 대</h4>
+
+                    <div class="p-3 rounded"
+                         th:classappend="${equipment.availableCount > 0} ? 'bg-light' : 'bg-danger-subtle'">
+                        <p class="mb-1 small text-secondary fw-medium">현재 보유 재고</p>
+                        <h4 class="mb-0">
+                            <span class="fw-bold" th:classappend="${equipment.availableCount == 0} ? 'text-danger' : 'text-dark'"
+                                  th:text="${equipment.availableCount}">2</span>
+                            <span class="text-muted fs-6"> / <span th:text="${equipment.totalCount}">5</span> 대</span>
+                        </h4>
                     </div>
                 </div>
+
                 <div class="card-footer bg-white border-0 pb-3">
-                    <button class="btn btn-primary w-100" th:disabled="${equipment.availableCount == 0}">
-                        대여 가능 리스트 보기
-                    </button>
+                    <div th:if="${equipment.availableCount > 0}">
+                        <a th:href="@{/rentals/new(equipmentId=${equipment.id})}"
+                           class="btn btn-primary w-100 fw-bold py-2">
+                            대여하기
+                        </a>
+                    </div>
+
+                    <div th:unless="${equipment.availableCount > 0}">
+                        <button class="btn btn-secondary w-100 py-2 fw-bold" disabled>
+                            현재 품절 (대여 불가)
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

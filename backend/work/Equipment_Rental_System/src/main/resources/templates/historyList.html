@@ -12,13 +12,16 @@
 <body class="container mt-5">
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>📋 전체 대여 이력 목록</h2>
-    <a href="/rentals/new" class="btn btn-primary">신규 대여 신청</a>
+    <h2 class="fw-bold text-dark">📋 전체 대여 이력 목록</h2>
+    <div class="btn-group">
+        <a href="/equipments" class="btn btn-outline-secondary">장비 목록으로</a>
+        <a href="/rentals/new" class="btn btn-primary">신규 대여 신청</a>
+    </div>
 </div>
 
 <div class="card shadow-sm">
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0 align-middle text-center">
             <thead class="table-dark">
             <tr>
                 <th>번호</th>
@@ -27,36 +30,30 @@
                 <th>대여자</th>
                 <th>대여일시</th>
                 <th>반납일시</th>
-                <th class="text-center">상태 및 작업</th>
+                <th>상태 및 작업</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="h : ${histories}">
                 <td th:text="${h.id}">1</td>
-                <td th:text="${h.equipmentName}" class="fw-bold">장비명</td>
+                <td th:text="${h.equipmentName}" class="fw-bold text-start">장비명</td>
                 <td><code th:text="${h.serialNumber}">S/N</code></td>
                 <td th:text="${h.memberName}">대여자</td>
                 <td th:text="${h.rentalDate}">2026-03-07 10:00</td>
-                <td th:text="${h.returnDate}">-</td>
-                <td class="text-center">
-                            <span th:text="${h.historyStatus}"
-                                  th:classappend="${h.historyStatus == '대여 중'} ? 'badge bg-warning text-dark' : 'badge bg-success'">
-                                상태
-                            </span>
+                <td th:text="${h.returnDate != null ? h.returnDate : '-'}">-</td>
+                <td>
+                    <span th:text="${h.historyStatus}"
+                          th:classappend="${h.historyStatus == '대여 중'} ? 'badge bg-warning text-dark' : 'badge bg-success'">
+                        상태
+                    </span>
 
-                    <div th:if="${h.historyStatus == '반납 완료'}" class="mt-2">
-                        <div th:if="${h.modelAvailable}">
-                            <a th:href="@{/rentals/new(equipmentId=${h.equipmentId})}"
-                               class="btn btn-sm btn-outline-success">지금 대여하기</a>
+                    <div class="mt-2">
+                        <div th:if="${h.historyStatus == '대여 중'}">
+                            <form th:action="@{/rentals/return/{id}(id=${h.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-primary py-1">반납하기</button>
+                            </form>
                         </div>
 
-                        <div th:if="${!h.modelAvailable}">
-                            <span class="badge bg-secondary">모델 품절</span>
-                        </div>
-                    </div>
-
-                    <div th:if="${h.historyStatus == '대여 중'}" class="mt-2">
-                        <button class="btn btn-sm btn-outline-primary" disabled>반납하기</button>
                     </div>
                 </td>
             </tr>
