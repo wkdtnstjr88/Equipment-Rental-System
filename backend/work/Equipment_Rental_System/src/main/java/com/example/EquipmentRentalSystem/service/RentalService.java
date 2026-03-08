@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ public class RentalService {
 
     private final RentalHistoryRepository rentalHistoryRepository;
     private final EquipmentItemRepository equipmentItemRepository;
+
 
     @Transactional(readOnly = true)
     public List<RentalHistoryResponseDTO> getAllRentalHistories() {
@@ -73,5 +75,31 @@ public class RentalService {
         history.setHistoryStatus(RentalHistory.STATUS_RENTED);
 
         rentalHistoryRepository.save(history);
+    }
+
+    /**
+     * [반납 실행]
+     * 특정 이력 ID를 통해 대여 상태를 '반납 완료'로 변경합니다.
+     */
+    @Transactional // 데이터 변경이 일어나므로 트랜잭션 처리가 필수입니다.
+    public void returnRental(Long historyId) {
+        // 1. 특정 ID로 대여 이력을 조회합니다.
+        RentalHistory history = rentalHistoryRepository.findById(historyId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 대여 기록을 찾을 수 없습니다. ID: " + historyId));
+
+        // 2. 이미 반납된 경우를 대비한 방어 로직 (면접 포인트)
+        if (RentalHistory.STATUS_RETURNED.equals(history.getHistoryStatus())) {
+            throw new IllegalStateException("이미 반납 처리가 완료된 항목입니다.");
+        }
+
+        // 3. 연결된 장비(Item)의 상태를 AVAILABLE로 변경합니다.
+        EquipmentItem item = history.getEquipmentItem();
+        item.setStatus(EquipmentItem.STATUS_AVAILABLE);
+
+        // 4. 이력 정보에 반납일과 상태를 업데이트합니다.
+        history.setReturnDate(LocalDateTime.now());
+        history.setHistoryStatus(RentalHistory.STATUS_RETURNED);
+
+        // 별도의 save() 호출 없이 JPA의 '더티 체킹'으로 DB에 반영됩니다.
     }
 }

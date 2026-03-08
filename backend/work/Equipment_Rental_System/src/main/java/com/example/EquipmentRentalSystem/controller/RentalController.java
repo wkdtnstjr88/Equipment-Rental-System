@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -29,6 +31,10 @@ public class RentalController {
 
         // 2. "histories"라는 이름으로 HTML에 데이터를 전달합니다.
         model.addAttribute("histories", histories);
+
+        // 이 부분이 없으면 팝업을 눌렀을 때 "대여할 아이템이 없다"는 메시지가 뜹니다.
+        List<EquipmentItemResponseDTO> availableItems = equipmentService.getAllAvailableItems();
+        model.addAttribute("items", availableItems);
 
         // 3. templates/rental/historyList.html 파일을 보여줍니다.
         return "historyList";
@@ -57,5 +63,16 @@ public class RentalController {
         return "redirect:/rentals/history";
     }
 
+    @PostMapping("/rentals/return/{id}")
+    public String returnRental(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            rentalService.returnRental(id); // 서비스 호출
+            redirectAttributes.addFlashAttribute("message", "정상적으로 반납되었습니다."); //
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "반납 처리 중 오류가 발생했습니다: " + e.getMessage());
+        }
 
+        // 반납 후 다시 이력 목록 페이지로 이동합니다.
+        return "redirect:/rentals/history";
+    }
 }
