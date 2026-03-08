@@ -5,25 +5,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor // 기본 생성자 추가 (안정성 확보)
+@NoArgsConstructor
 public class EquipmentItemResponseDTO {
+    // 1. [필드 영역] 변수들은 여기에 모여있어야 합니다.
     private Long id;
     private String serialNumber;
     private String status;
     private String equipmentName;
+    private Long equipmentId; //
 
-    // 엔티티를 DTO로 변환하는 생성자
+    // 2. [생성자 영역] 여기서는 값만 넣어줍니다.
     public EquipmentItemResponseDTO(EquipmentItem item) {
         this.id = item.getId();
         this.serialNumber = item.getSerialNumber();
         this.status = item.getStatus();
-        // 장비 모델명 가져오기 (equipment가 null인지 체크하면 더 완벽합니다)
+
         if (item.getEquipment() != null) {
             this.equipmentName = item.getEquipment().getName();
-        }
-        // 부모(Equipment)가 없을 경우를 대비한 방어 코드
-        if (item.getEquipment() != null) {
-            this.equipmentName = item.getEquipment().getName();
+            // 🔥 이제 이 변수를 정상적으로 인식합니다.
+            this.equipmentId = item.getEquipment().getId();
         } else {
             this.equipmentName = "미지정 장비";
         }
