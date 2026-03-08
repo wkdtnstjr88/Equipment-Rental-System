@@ -24,19 +24,20 @@ public class RentalController {
 
     // 대여 이력 페이지 접속 주소: http://localhost:8080/rentals/history
     @GetMapping("/rentals/history")
-    public String rentalHistoryList(Model model) {
+    public String rentalHistoryList(
+            @RequestParam(value = "searchType", required = false, defaultValue = "equipmentName") String searchType,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            Model model) {
 
-        // 1. 서비스에서 가공된 DTO 리스트를 싹 가져옵니다.
-        List<RentalHistoryResponseDTO> histories = rentalService.getAllRentalHistories();
+        List<RentalHistoryResponseDTO> histories = rentalService.getDynamicSearchHistories(searchType, keyword);
 
-        // 2. "histories"라는 이름으로 HTML에 데이터를 전달합니다.
         model.addAttribute("histories", histories);
+        model.addAttribute("searchType", searchType); // 선택된 검색 타입 유지
+        model.addAttribute("keyword", keyword);       // 입력된 키워드 유지
 
-        // 이 부분이 없으면 팝업을 눌렀을 때 "대여할 아이템이 없다"는 메시지가 뜹니다.
-        List<EquipmentItemResponseDTO> availableItems = equipmentService.getAllAvailableItems();
-        model.addAttribute("items", availableItems);
+        // 모달용 데이터
+        model.addAttribute("items", equipmentService.getAllAvailableItems());
 
-        // 3. templates/rental/historyList.html 파일을 보여줍니다.
         return "historyList";
     }
 

@@ -30,6 +30,18 @@ public class RentalService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<RentalHistoryResponseDTO> getDynamicSearchHistories(String searchType, String keyword) {
+        // 검색 타입이 없으면 기본값 설정 또는 전체 조회
+        if (searchType == null || searchType.isEmpty()) {
+            return getAllRentalHistories();
+        }
+
+        return rentalHistoryRepository.findByDynamicSearch(searchType, keyword).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     private RentalHistoryResponseDTO convertToDTO(RentalHistory history) {
         // 1. 날짜 가공
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -107,4 +119,6 @@ public class RentalService {
 
         // 별도의 save() 호출 없이 JPA의 '더티 체킹'으로 DB에 반영됩니다.
     }
+
+
 }

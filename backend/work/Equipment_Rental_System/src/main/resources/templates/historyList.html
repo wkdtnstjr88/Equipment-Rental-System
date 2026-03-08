@@ -16,16 +16,39 @@
 </head>
 <body>
 
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">📜 장비 대여 이력</h2>
-            <p class="text-muted mb-0">전체 대여 및 반납 현황을 확인할 수 있습니다.</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="/equipments" class="btn btn-outline-dark px-4">💻 장비 목록</a>
-        </div>
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">📜 장비 대여 이력</h2>
+        <p class="text-muted mb-0">조건을 선택하고 키워드를 입력하여 검색하세요.</p>
     </div>
+
+    <div class="d-flex gap-2">
+        <form th:action="@{/rentals/history}" method="get" id="searchForm" class="d-flex gap-1 align-items-center">
+            <select name="searchType" id="searchType" class="form-select form-select-sm" style="width: 130px;">
+                <option value="equipmentName" th:selected="${searchType == 'equipmentName'}">장비명</option>
+                <option value="serialNumber" th:selected="${searchType == 'serialNumber'}">시리얼 번호</option>
+                <option value="memberName" th:selected="${searchType == 'memberName'}">대여자</option>
+                <option value="rentalDate" th:selected="${searchType == 'rentalDate'}">대여일</option>
+                <option value="returnDate" th:selected="${searchType == 'returnDate'}">반납일</option>
+                <option value="status" th:selected="${searchType == 'status'}">상태</option>
+            </select>
+
+            <input type="text" id="keywordText" th:value="${keyword}"
+                   class="form-control form-control-sm" placeholder="검색어 입력..."
+                   style="width: 180px;">
+
+            <input type="date" id="keywordDate"
+                   class="form-control form-control-sm"
+                   style="display: none; width: 180px;">
+
+            <input type="hidden" name="keyword" id="realKeyword">
+
+            <button type="submit" class="btn btn-sm btn-dark px-3">검색</button>
+        </form>
+
+        <a href="/equipments" class="btn btn-outline-dark px-4">💻 장비 목록</a>
+    </div>
+</div>
 
     <div class="card history-card">
         <div class="card-body p-0">
@@ -125,10 +148,42 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     document.addEventListener("DOMContentLoaded", function() {
+        // 메시지 알림 로직 (기존에 있던 것)
         const message = [[${message}]];
         const errorMessage = [[${errorMessage}]];
         if (message) alert(message);
         if (errorMessage) alert(errorMessage);
+
+        // --- 여기부터 복사한 코드를 붙여넣으세요 ---
+        const searchType = document.getElementById('searchType');
+        const keywordText = document.getElementById('keywordText');
+        const keywordDate = document.getElementById('keywordDate');
+        const searchForm = document.getElementById('searchForm');
+        const realKeyword = document.getElementById('realKeyword');
+
+        // 드롭바 값이 바뀔 때마다 실행되는 함수
+        searchType.addEventListener('change', function() {
+            const value = this.value;
+            if (value === 'rentalDate' || value === 'returnDate') {
+                keywordText.style.display = 'none';
+                keywordDate.style.display = 'block';
+            } else {
+                keywordText.style.display = 'block';
+                keywordDate.style.display = 'none';
+            }
+            keywordText.value = '';
+            keywordDate.value = '';
+        });
+
+        // 폼이 제출될 때 실행
+        searchForm.addEventListener('submit', function(e) {
+            if (keywordDate.style.display === 'block') {
+                realKeyword.value = keywordDate.value;
+            } else {
+                realKeyword.value = keywordText.value;
+            }
+        });
+        // --- 여기까지 ---
     });
     /*]]>*/
 </script>
