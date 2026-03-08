@@ -66,6 +66,11 @@ public class RentalService {
         EquipmentItem item = equipmentItemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이템이 없습니다."));
 
+        // 🔥 추가: 이미 대여 중인지 한 번 더 체크 (방어적 프로그래밍)
+        if (!"AVAILABLE".equals(item.getStatus())) {
+            throw new IllegalStateException("현재 대여 가능한 상태가 아닙니다.");
+        }
+
         item.setStatus("RENTED");
 
         RentalHistory history = new RentalHistory();

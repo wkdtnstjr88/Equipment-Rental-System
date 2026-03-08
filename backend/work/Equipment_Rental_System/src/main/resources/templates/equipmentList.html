@@ -2,89 +2,69 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>장비 목록 - Equipment Rental System</title>
+    <title>장비 현황 및 대여</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; }
-        .container { margin-top: 50px; }
-        .table-card { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .status-badge { font-size: 0.85rem; padding: 0.4em 0.8em; border-radius: 50px; }
-        .btn-action { border-radius: 8px; font-weight: 500; }
+        body { background-color: #f4f7f6; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+        .container { max-width: 1100px; }
+        .table-card { background: white; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); border: none; }
+        .badge-available { background-color: #d1e7dd; color: #0f5132; } /* 이용 가능 */
+        .badge-rented { background-color: #f8d7da; color: #842029; }    /* 대여 중 */
+        .btn-rent { font-weight: 600; border-radius: 8px; transition: all 0.2s; }
+        .btn-rent:hover { transform: translateY(-1px); shadow: 0 4px 8px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold"><i class="bi bi-box-seam me-2"></i>장비 렌탈 현황</h2>
-        <a href="/" class="btn btn-outline-dark btn-action">홈으로</a>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body bg-light rounded">
-            <form th:action="@{/equipments}" method="get" class="row g-3 align-items-end">
-
-                <div class="col-md-5">
-                    <label class="form-label fw-bold small text-muted">
-                        <i class="bi bi-search"></i> 장비명 검색
-                    </label>
-                    <input type="text" name="searchName" th:value="${searchName}"
-                           class="form-control" placeholder="장비 이름을 입력하세요...">
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-bold small text-muted">
-                        <i class="bi bi-filter"></i> 상태 필터
-                    </label>
-                    <select name="status" class="form-select">
-                        <option value="">전체</option>
-                        <option value="AVAILABLE" th:selected="${currentStatus == 'AVAILABLE'}">이용 가능</option>
-                        <option value="RENTED" th:selected="${currentStatus == 'RENTED'}">대여 중</option>
-                        <option value="BROKEN" th:selected="${currentStatus == 'BROKEN'}">고장/수리 중</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3 d-grid gap-2 d-md-flex">
-                    <button type="submit" class="btn btn-primary px-4 fw-bold">검색</button>
-                    <a th:href="@{/equipments}" class="btn btn-outline-secondary px-3">초기화</a>
-                </div>
-
-            </form>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">💻 보유 장비 현황</h2>
+            <p class="text-muted">현재 대여 가능한 장비를 확인하고 신청할 수 있습니다.</p>
+        </div>
+        <div class="mb-2">
+            <a href="/rentals/history" class="btn btn-outline-dark px-4">📜 대여 이력 보기</a>
         </div>
     </div>
 
     <div class="card table-card">
         <div class="card-body p-0">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 align-middle">
                 <thead class="table-light">
                 <tr>
-                    <th class="ps-4">ID</th>
-                    <th>장비명</th>
-                    <th>시리얼 번호</th>
-                    <th>상태</th>
-                    <th class="text-center">작업</th>
+                    <th class="py-3 ps-4" style="width: 80px;">ID</th>
+                    <th class="py-3">모델명</th>
+                    <th class="py-3">시리얼 번호</th>
+                    <th class="py-3">상태</th>
+                    <th class="py-3 text-center pe-4" style="width: 150px;">대여 신청</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="item : ${items}">
-                    <td class="ps-4" th:text="${item.id}">1</td>
-                    <td class="fw-bold" th:text="${item.equipmentName}">장비명</td>
-                    <td class="text-muted" th:text="${item.serialNumber}">SN-001</td>
-                    <td>
-                        <span th:if="${item.status == 'AVAILABLE'}" class="badge bg-success status-badge">이용 가능</span>
-                        <span th:if="${item.status == 'RENTED'}" class="badge bg-warning text-dark status-badge">대여 중</span>
-                        <span th:if="${item.status == 'BROKEN'}" class="badge bg-danger status-badge">고장</span>
-                    </td>
-                    <td class="text-center">
-                        <button th:if="${item.status == 'AVAILABLE'}"
-                                class="btn btn-sm btn-outline-primary btn-action"
-                                th:onclick="'openRentalModal(' + ${item.id} + ')'">대여하기</button>
-                        <span th:if="${item.status != 'AVAILABLE'}" class="text-muted small">-</span>
-                    </td>
-                </tr>
                 <tr th:if="${#lists.isEmpty(items)}">
-                    <td colspan="5" class="text-center py-5 text-muted">검색 결과가 없습니다.</td>
+                    <td colspan="5" class="text-center py-5 text-muted">등록된 장비가 없습니다.</td>
+                </tr>
+
+                <tr th:each="item : ${items}">
+                    <td class="py-3 ps-4 text-muted" th:text="${item.id}">1</td>
+                    <td class="py-3">
+                        <strong class="text-dark" th:text="${item.equipmentName}">장비명</strong>
+                    </td>
+                    <td class="py-3 font-monospace text-secondary" th:text="${item.serialNumber}">SN-0000</td>
+                    <td class="py-3">
+                        <span th:if="${item.status == 'AVAILABLE'}" class="badge badge-available px-3 py-2">이용 가능</span>
+                        <span th:unless="${item.status == 'AVAILABLE'}" class="badge badge-rented px-3 py-2">대여 중</span>
+                    </td>
+                    <td class="py-3 text-center pe-4">
+                        <a th:if="${item.status == 'AVAILABLE'}"
+                           th:href="@{/rentals/new(equipmentId=${item.id})}"
+                           class="btn btn-sm btn-primary btn-rent px-3">
+                            대여하기
+                        </a>
+                        <button th:unless="${item.status == 'AVAILABLE'}"
+                                class="btn btn-sm btn-light text-muted" style="cursor: not-allowed;" disabled>
+                            대여 불가
+                        </button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -92,12 +72,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function openRentalModal(itemId) {
-        // 기존에 구현하셨던 대여 신청 로직(SweetAlert2 또는 모달)을 여기에 넣으시면 됩니다.
-    }
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -53,6 +53,7 @@ public class RentalController {
         }
 
         model.addAttribute("items", availableItems);
+        model.addAttribute("selectedItemId", equipmentId);
         return "rentalForm"; // 대여 신청 페이지 이름
     }
 
