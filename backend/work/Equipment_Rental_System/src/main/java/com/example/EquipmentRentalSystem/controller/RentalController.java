@@ -58,8 +58,14 @@ public class RentalController {
     }
 
     @PostMapping("/rentals/new")
-    public String createRental(@RequestParam Long itemId, @RequestParam String memberName) {
-        rentalService.createRental(itemId, memberName);
+    public String createRental(@RequestParam Long itemId, @RequestParam String memberName, RedirectAttributes reAttributes) {
+        try {
+            rentalService.createRental(itemId, memberName);
+            // "message"라는 이름으로 성공 문구 전달
+            reAttributes.addFlashAttribute("message", "대여가 완료되었습니다!");
+        } catch (Exception e) {
+            reAttributes.addFlashAttribute("errorMessage", "대여 중 오류가 발생했습니다.");
+        }
         // 저장이 끝나면 이력 페이지로 리다이렉트
         return "redirect:/rentals/history";
     }
@@ -70,7 +76,7 @@ public class RentalController {
             rentalService.returnRental(id); // 서비스 호출
             redirectAttributes.addFlashAttribute("message", "정상적으로 반납되었습니다."); //
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "반납 처리 중 오류가 발생했습니다: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "반납 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
 
         // 반납 후 다시 이력 목록 페이지로 이동합니다.
