@@ -8,10 +8,11 @@
         body { background-color: #f4f7f6; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
         .container { max-width: 1100px; }
         .table-card { background: white; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); border: none; }
-        .badge-available { background-color: #d1e7dd; color: #0f5132; } /* 이용 가능 */
-        .badge-rented { background-color: #f8d7da; color: #842029; }    /* 대여 중 */
+        .search-card { background: white; border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); padding: 20px; margin-bottom: 25px; }
+        .badge-available { background-color: #d1e7dd; color: #0f5132; }
+        .badge-rented { background-color: #f8d7da; color: #842029; }
         .btn-rent { font-weight: 600; border-radius: 8px; transition: all 0.2s; }
-        .btn-rent:hover { transform: translateY(-1px); shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .btn-rent:hover { transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -25,6 +26,26 @@
         <div class="mb-2">
             <a href="/rentals/history" class="btn btn-outline-dark px-4">📜 대여 이력 보기</a>
         </div>
+    </div>
+
+    <div class="search-card">
+        <form th:action="@{/equipments}" method="get" class="row g-3 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="searchName" th:value="${searchName}"
+                       class="form-control" placeholder="장비명 또는 모델명을 입력하세요">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="" th:selected="${currentStatus == null or currentStatus == ''}">전체 상태</option>
+                    <option value="AVAILABLE" th:selected="${currentStatus == 'AVAILABLE'}">이용 가능</option>
+                    <option value="RENTED" th:selected="${currentStatus == 'RENTED'}">대여 중</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary px-4 me-2">검색</button>
+                <a href="/equipments" class="btn btn-light border px-3">초기화</a>
+            </div>
+        </form>
     </div>
 
     <div class="card table-card">
@@ -41,7 +62,7 @@
                 </thead>
                 <tbody>
                 <tr th:if="${#lists.isEmpty(items)}">
-                    <td colspan="5" class="text-center py-5 text-muted">등록된 장비가 없습니다.</td>
+                    <td colspan="5" class="text-center py-5 text-muted">조건에 맞는 장비가 없습니다.</td>
                 </tr>
 
                 <tr th:each="item : ${items}">
