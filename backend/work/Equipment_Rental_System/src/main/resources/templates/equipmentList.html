@@ -2,69 +2,102 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>장비 렌탈 현황</title>
+    <title>장비 목록 - Equipment Rental System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        .card { transition: transform 0.2s; border-radius: 12px; }
-        .card:hover { transform: translateY(-5px); }
-        .badge-category { font-size: 0.75rem; padding: 5px 10px; }
+        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; }
+        .container { margin-top: 50px; }
+        .table-card { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .status-badge { font-size: 0.85rem; padding: 0.4em 0.8em; border-radius: 50px; }
+        .btn-action { border-radius: 8px; font-weight: 500; }
     </style>
 </head>
-<body class="bg-light">
-<div class="container mt-5">
+<body>
+
+<div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">📦 장비 렌탈 현황</h2>
-        <div class="btn-group shadow-sm">
-            <a href="/" class="btn btn-outline-secondary">홈으로</a>
-            <a href="/rentals/history" class="btn btn-outline-dark">대여 내역</a>
+        <h2 class="fw-bold"><i class="bi bi-box-seam me-2"></i>장비 렌탈 현황</h2>
+        <a href="/" class="btn btn-outline-dark btn-action">홈으로</a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light rounded">
+            <form th:action="@{/equipments}" method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-5">
+                    <label class="form-label fw-bold small text-muted">
+                        <i class="bi bi-search"></i> 장비명 검색
+                    </label>
+                    <input type="text" name="searchName" th:value="${searchName}"
+                           class="form-control" placeholder="장비 이름을 입력하세요...">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold small text-muted">
+                        <i class="bi bi-filter"></i> 상태 필터
+                    </label>
+                    <select name="status" class="form-select">
+                        <option value="">전체</option>
+                        <option value="AVAILABLE" th:selected="${currentStatus == 'AVAILABLE'}">이용 가능</option>
+                        <option value="RENTED" th:selected="${currentStatus == 'RENTED'}">대여 중</option>
+                        <option value="BROKEN" th:selected="${currentStatus == 'BROKEN'}">고장/수리 중</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">검색</button>
+                    <a th:href="@{/equipments}" class="btn btn-outline-secondary px-3">초기화</a>
+                </div>
+
+            </form>
         </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <div class="col" th:each="equipment : ${equipments}">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                        <span class="badge bg-info text-dark badge-category" th:text="${equipment.category}">카테고리</span>
-                        <span class="text-muted small">ID: <span th:text="${equipment.id}">1</span></span>
-                    </div>
-
-                    <h5 class="card-title fw-bold mb-3" th:text="${equipment.name}">장비명</h5>
-
-                    <p class="card-text text-primary fs-5 fw-semibold mb-3">
-                        일일 <span th:text="${#numbers.formatInteger(equipment.dailyPrice, 0, 'COMMA')}">50,000</span>원
-                    </p>
-
-                    <div class="p-3 rounded"
-                         th:classappend="${equipment.availableCount > 0} ? 'bg-light' : 'bg-danger-subtle'">
-                        <p class="mb-1 small text-secondary fw-medium">현재 보유 재고</p>
-                        <h4 class="mb-0">
-                            <span class="fw-bold" th:classappend="${equipment.availableCount == 0} ? 'text-danger' : 'text-dark'"
-                                  th:text="${equipment.availableCount}">2</span>
-                            <span class="text-muted fs-6"> / <span th:text="${equipment.totalCount}">5</span> 대</span>
-                        </h4>
-                    </div>
-                </div>
-
-                <div class="card-footer bg-white border-0 pb-3">
-                    <div th:if="${equipment.availableCount > 0}">
-                        <a th:href="@{/rentals/new(equipmentId=${equipment.id})}"
-                           class="btn btn-primary w-100 fw-bold py-2">
-                            대여하기
-                        </a>
-                    </div>
-
-                    <div th:unless="${equipment.availableCount > 0}">
-                        <button class="btn btn-secondary w-100 py-2 fw-bold" disabled>
-                            현재 품절 (대여 불가)
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <div class="card table-card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th class="ps-4">ID</th>
+                    <th>장비명</th>
+                    <th>시리얼 번호</th>
+                    <th>상태</th>
+                    <th class="text-center">작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${items}">
+                    <td class="ps-4" th:text="${item.id}">1</td>
+                    <td class="fw-bold" th:text="${item.equipmentName}">장비명</td>
+                    <td class="text-muted" th:text="${item.serialNumber}">SN-001</td>
+                    <td>
+                        <span th:if="${item.status == 'AVAILABLE'}" class="badge bg-success status-badge">이용 가능</span>
+                        <span th:if="${item.status == 'RENTED'}" class="badge bg-warning text-dark status-badge">대여 중</span>
+                        <span th:if="${item.status == 'BROKEN'}" class="badge bg-danger status-badge">고장</span>
+                    </td>
+                    <td class="text-center">
+                        <button th:if="${item.status == 'AVAILABLE'}"
+                                class="btn btn-sm btn-outline-primary btn-action"
+                                th:onclick="'openRentalModal(' + ${item.id} + ')'">대여하기</button>
+                        <span th:if="${item.status != 'AVAILABLE'}" class="text-muted small">-</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(items)}">
+                    <td colspan="5" class="text-center py-5 text-muted">검색 결과가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function openRentalModal(itemId) {
+        // 기존에 구현하셨던 대여 신청 로직(SweetAlert2 또는 모달)을 여기에 넣으시면 됩니다.
+    }
+</script>
+
 </body>
 </html>

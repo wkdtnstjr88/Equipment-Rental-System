@@ -48,12 +48,7 @@ public class EquipmentService {
                 .orElseThrow(() -> new IllegalArgumentException("장비 없음"));
 
         return equipment.getItems().stream()
-                .map(item -> new EquipmentItemResponseDTO(
-                        item.getId(),
-                        item.getSerialNumber(),
-                        item.getStatus(),
-                        equipment.getName() // 부모 엔티티의 이름을 가져와서 담아줌
-                ))
+                .map(EquipmentItemResponseDTO::new) // item 엔티티 하나를 넘겨서 DTO로 변환
                 .collect(Collectors.toList());
     }
 
@@ -61,12 +56,8 @@ public class EquipmentService {
         // 모든 기기 아이템 중 상태가 "AVAILABLE"인 것만 필터링해서 DTO로 변환
         return equipmentItemRepository.findAll().stream()
                 .filter(item -> "AVAILABLE".equals(item.getStatus()))
-                .map(item -> new EquipmentItemResponseDTO(
-                        item.getId(),
-                        item.getSerialNumber(),
-                        item.getStatus(),
-                        item.getEquipment().getName()
-                ))
+                // 🔥 직접 필드를 하나하나 넣지 말고, item 엔티티 통째로 넘기세요!
+                .map(EquipmentItemResponseDTO::new)
                 .collect(Collectors.toList());
     }
 
@@ -112,5 +103,16 @@ public class EquipmentService {
                     total
             );
         }).toList();
+    }
+
+    public List<EquipmentItemResponseDTO> searchItems(String name, String status) {
+        // 만약 상태값이 빈 문자열("")로 들어오면 null로 처리하여 쿼리 조건에서 제외되게 합니다.
+        String filterStatus = (status != null && !status.isEmpty()) ? status : null;
+
+        List<EquipmentItem> items = equipmentItemRepository.findByFilters(name, filterStatus);
+
+        return items.stream()
+                .map(EquipmentItemResponseDTO::new)
+                .collect(Collectors.toList());
     }
 }
