@@ -2,6 +2,7 @@ package com.example.EquipmentRentalSystem.controller;
 
 import com.example.EquipmentRentalSystem.dto.EquipmentItemResponseDTO;
 import com.example.EquipmentRentalSystem.dto.RentalHistoryResponseDTO;
+import com.example.EquipmentRentalSystem.dto.RentalRequestDTO;
 import com.example.EquipmentRentalSystem.service.EquipmentService;
 import com.example.EquipmentRentalSystem.service.RentalService;
 import lombok.RequiredArgsConstructor;
@@ -11,10 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -39,7 +37,7 @@ public class RentalController {
         Page<RentalHistoryResponseDTO> historyPage = rentalService.getRentalHistories(searchType, keyword, pageable);
 
         // 2. 화면에 전달할 데이터 담기
-        model.addAttribute("histories", historyPage.getContent()); // 실제 목록 데이터 (List)
+        model.addAttribute("historyList", historyPage.getContent()); // 실제 목록 데이터 (List)
         model.addAttribute("page", historyPage);                   // 페이징 관련 정보 (전체 페이지 등)
         model.addAttribute("searchType", searchType);              // 검색 조건 유지용
         model.addAttribute("keyword", keyword);                    // 검색어 유지용
@@ -65,15 +63,15 @@ public class RentalController {
     }
 
     @PostMapping("/rentals/new")
-    public String createRental(@RequestParam Long itemId, @RequestParam String memberName, RedirectAttributes reAttributes) {
+    public String createRental(@ModelAttribute RentalRequestDTO requestDto, RedirectAttributes reAttributes) {
         try {
-            rentalService.createRental(itemId, memberName);
-            // "message"라는 이름으로 성공 문구 전달
-            reAttributes.addFlashAttribute("message", "대여가 완료되었습니다!");
+            rentalService.createRental(requestDto);
+            reAttributes.addFlashAttribute("message", "대여 신청이 완료되었습니다!");
         } catch (Exception e) {
-            reAttributes.addFlashAttribute("errorMessage", "대여 중 오류가 발생했습니다.");
+            // 💡 여기서 e.getMessage()를 찍어주면 왜 화면이 안 나오는지 이유가 보입니다!
+            reAttributes.addFlashAttribute("errorMessage", "오류 원인: " + e.getMessage());
+            e.printStackTrace(); // 서버 콘솔에 상세 로그 출력
         }
-        // 저장이 끝나면 이력 페이지로 리다이렉트
         return "redirect:/rentals/history";
     }
 

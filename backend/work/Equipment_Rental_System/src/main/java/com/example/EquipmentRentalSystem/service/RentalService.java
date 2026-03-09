@@ -1,6 +1,7 @@
 package com.example.EquipmentRentalSystem.service;
 
 import com.example.EquipmentRentalSystem.dto.RentalHistoryResponseDTO;
+import com.example.EquipmentRentalSystem.dto.RentalRequestDTO;
 import com.example.EquipmentRentalSystem.entity.Equipment;
 import com.example.EquipmentRentalSystem.entity.EquipmentItem;
 import com.example.EquipmentRentalSystem.entity.RentalHistory;
@@ -71,21 +72,32 @@ public class RentalService {
     }
 
     @Transactional
-    public void createRental(Long itemId, String memberName) {
-        EquipmentItem item = equipmentItemRepository.findById(itemId)
+    public void createRental(RentalRequestDTO dto) {
+        // 1. [무결성 체크] 과거 날짜 예약 금지 (10분 버퍼 제공)
+        // 현재 시간보다 10분 전까지는 '현재'로 인정해줌으로써 네트워크 지연 등 오차 해결
+        if (dto.getRentalDate().isBefore(LocalDateTime.now().minusMinutes(10))) {
+            throw new IllegalArgumentException("이미 지난 시간으로는 예약할 수 없습니다.");
+        }
+
+
+        // 2. DTO에서 itemId 꺼내서 장비 조회
+        EquipmentItem item = equipmentItemRepository.findById(dto.getItemId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이템이 없습니다."));
 
-        // 🔥 추가: 이미 대여 중인지 한 번 더 체크 (방어적 프로그래밍)
+        // 3. 이미 대여 중인지 체크
         if (!"AVAILABLE".equals(item.getStatus())) {
             throw new IllegalStateException("현재 대여 가능한 상태가 아닙니다.");
         }
 
+        // 5. 장비 상태 변경
         item.setStatus("RENTED");
 
+        // 6. 이력 저장
         RentalHistory history = new RentalHistory();
         history.setEquipmentItem(item);
-        history.setMemberName(memberName);
-        history.setRentalDate(java.time.LocalDateTime.now());
+        history.setMemberName(dto.getMemberName());
+        history.setRentalDate(dto.getRentalDate());
+        history.setReturnDate(dto.getReturnDate()); // 반납 예정일도 함께 저장
         history.setHistoryStatus(RentalHistory.STATUS_RENTED);
 
         rentalHistoryRepository.save(history);

@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>장비 대여 신청</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; }
+        .card { border-radius: 15px; overflow: hidden; }
+        .form-label { font-size: 0.9rem; color: #495057; }
+    </style>
 </head>
 <body class="bg-light">
 <div class="container mt-5">
@@ -11,15 +16,15 @@
         <div class="col-md-6">
             <div class="card shadow border-0">
                 <div class="card-header bg-primary text-white py-3">
-                    <h5 class="mb-0">🚀 신규 대여 신청</h5>
+                    <h5 class="mb-0 text-center">🚀 장비 대여 신청</h5>
                 </div>
                 <div class="card-body p-4">
-                    <form th:action="@{/rentals/new}" method="post">
+                    <form th:action="@{/rentals/new}" method="post" id="rentalForm">
+
                         <div class="mb-4">
                             <label class="form-label fw-bold">대여 가능 장비 선택</label>
                             <select name="itemId" class="form-select" required>
                                 <option value="" th:selected="${selectedItemId == null}">-- 장비를 선택해주세요 --</option>
-
                                 <option th:each="item : ${items}"
                                         th:value="${item.id}"
                                         th:text="|${item.equipmentName} (${item.serialNumber})|"
@@ -33,9 +38,20 @@
                             <input type="text" name="memberName" class="form-control" placeholder="성함을 입력하세요" required>
                         </div>
 
-                        <div class="d-grid">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">대여 시작 시간</label>
+                            <input type="datetime-local" id="rentalDate" name="rentalDate" class="form-control" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">반납 예정 시간</label>
+                            <input type="datetime-local" id="returnDate" name="returnDate" class="form-control" required>
+                            <div id="dateHelp" class="form-text text-danger">최대 대여 기간은 7일입니다.</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">대여 확정</button>
-                            <a href="/rentals/history" class="btn btn-link text-secondary mt-2">취소하고 돌아가기</a>
+                            <a href="/rentals/history" class="btn btn-outline-secondary">취소</a>
                         </div>
                     </form>
                 </div>
@@ -43,5 +59,87 @@
         </div>
     </div>
 </div>
+
+<script>
+    // 날짜 객체를 datetime-local(YYYY-MM-DDTHH:mm) 형식으로 변환하는 함수
+    function getNowString(date) {
+        const offset = date.getTimezoneOffset() * 60000;
+        return new Date(date - offset).toISOString().slice(0, 16);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const rentalInput = document.getElementById('rentalDate');
+        const returnInput = document.getElementById('returnDate');
+        const form = document.getElementById('rentalForm');
+
+        // [1] 초기화 설정
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 1);
+        now.setSeconds(0, 0);
+
+        const nowStr = getNowString(now);
+        rentalInput.value = nowStr;
+        rentalInput.min = nowStr; // 시작일은 현재 시간 이후만 가능
+
+        // 반납일 기본값: 시작일 + 1일
+        const tomorrow = new Date(now.getTime() + (24 * 60 * 60 * 1000));
+        returnInput.value = getNowString(tomorrow);
+        returnInput.min = nowStr; // 반납일 최소값도 시작일로 설정
+
+        // 반납일 최대값 초기 설정: 시작일 + 7일
+        const maxDate = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
+        returnInput.max = getNowString(maxDate);
+
+        // [2] 대여 시작일 변경 시 이벤트 처리
+        rentalInput.addEventListener('change', function() {
+            if (rentalInput.value) {
+                const selectedStart = new Date(rentalInput.value);
+
+                // 1) 반납일의 최소값(min)을 시작일로 업데이트 (역전 방지)
+                returnInput.min = rentalInput.value;
+
+                // 2) 반납일의 최대값(max)을 시작일 + 7일로 업데이트 (7일 제한)
+                const selectedMax = new Date(selectedStart.getTime() + (7 * 24 * 60 * 60 * 1000));
+                returnInput.max = getNowString(selectedMax);
+
+                // 3) 보정: 만약 기존 반납일이 새로운 범위를 벗어난다면 자동 조정
+                const currentReturn = new Date(returnInput.value);
+                if (currentReturn < selectedStart) {
+                    returnInput.value = rentalInput.value;
+                } else if (currentReturn > selectedMax) {
+                    returnInput.value = getNowString(selectedMax);
+                }
+            }
+        });
+
+        // [3] 양식 제출 시 최종 검증
+        form.addEventListener('submit', function(e) {
+            const start = new Date(rentalInput.value);
+            const end = new Date(returnInput.value);
+            const realNow = new Date();
+
+            // 1) 과거 예약 방지 (5분 버퍼)
+            if (start < new Date(realNow.getTime() - (5 * 60 * 1000))) {
+                alert("현재 시간보다 이전 시간은 예약할 수 없습니다.");
+                e.preventDefault();
+                return;
+            }
+
+            // 2) 선후 관계 체크
+            if (end <= start) {
+                alert("반납 시간은 시작 시간보다 이후여야 합니다.");
+                e.preventDefault();
+                return;
+            }
+
+            // 3) 7일(168시간) 제한 최종 체크
+            const diffMs = end - start;
+            if (diffMs > (7 * 24 * 60 * 60 * 1000)) {
+                alert("최대 대여 기간은 7일입니다.");
+                e.preventDefault();
+            }
+        });
+    });
+</script>
 </body>
 </html>
