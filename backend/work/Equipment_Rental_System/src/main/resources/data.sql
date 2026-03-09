@@ -1,34 +1,54 @@
--- 0. 기존 데이터 삭제 (자식 테이블부터 지워야 외래키 에러가 안 납니다)
+-- 0. 기존 데이터 삭제
 DELETE FROM rental_history;
 DELETE FROM equipment_item;
 DELETE FROM equipment;
 
--- 1. 장비 모델 등록 (Equipment)
-INSERT INTO equipment (id, name, category, daily_price) VALUES (1, '맥북 프로 16', '노트북', 50000);
-INSERT INTO equipment (id, name, category, daily_price) VALUES (2, '아이패드 프로 12.9', '태블릿', 30000);
-INSERT INTO equipment (id, name, category, daily_price) VALUES (3, '소니 A7R5', '카메라', 70000);
+-- 1. 장비 모델 등록
+INSERT INTO equipment (id, name, category, daily_price) VALUES
+                                                            (1, '맥북 프로 16', '노트북', 50000),
+                                                            (2, '아이패드 프로 12.9', '태블릿', 30000),
+                                                            (3, '소니 A7R5', '카메라', 70000);
 
--- 2. 실제 개별 기기 등록 (EquipmentItem)
--- [맥북: 총 3대] 2대 대여 가능, 1대 대여 중
-INSERT INTO equipment_item (id, serial_number, status, equipment_id) VALUES (1, 'SN-MBP-001', 'AVAILABLE', 1);
-INSERT INTO equipment_item (id, serial_number, status, equipment_id) VALUES (2, 'SN-MBP-002', 'AVAILABLE', 1);
-INSERT INTO equipment_item (id, serial_number, status, equipment_id) VALUES (3, 'SN-MBP-003', 'RENTED', 1);
+-- 2. 실제 개별 기기 등록 (총 5대)
+-- 모든 기기의 상태를 일단 RENTED로 설정 (이력과 맞추기 위함)
+INSERT INTO equipment_item (id, serial_number, status, equipment_id) VALUES
+                                                                         (1, 'SN-MBP-001', 'RENTED', 1),
+                                                                         (2, 'SN-MBP-002', 'RENTED', 1),
+                                                                         (3, 'SN-MBP-003', 'RENTED', 1),
+                                                                         (4, 'SN-PAD-001', 'RENTED', 2),
+                                                                         (5, 'SN-SONY-001', 'RENTED', 3);
 
--- [아이패드: 총 1대] 1대 대여 가능
-INSERT INTO equipment_item (id, serial_number, status, equipment_id) VALUES (4, 'SN-PAD-001', 'AVAILABLE', 2);
+-- 3. 대여 이력 등록 (총 28개)
+-- [A] 현재 대여 중인 데이터 (딱 5개: 장비 수와 일치)
+INSERT INTO rental_history (equipment_item_id, member_name, rental_date, return_date, history_status) VALUES
+                                                                                                          (1, '손예진', '2026-03-10 20:00:00', NULL, 'RENTED'),
+                                                                                                          (2, '임윤아', '2026-03-10 19:00:00', NULL, 'RENTED'),
+                                                                                                          (3, '차은우', '2026-03-10 14:00:00', NULL, 'RENTED'),
+                                                                                                          (4, '전진', '2026-03-10 13:00:00', NULL, 'RENTED'),
+                                                                                                          (5, '이광수', '2026-03-10 17:00:00', NULL, 'RENTED');
 
--- [소니 카메라: 총 1대] 1대 대여 중 (품절 상태 테스트용)
-INSERT INTO equipment_item (id, serial_number, status, equipment_id) VALUES (5, 'SN-SONY-001', 'RENTED', 3);
-
--- 3. 대여 이력 등록 (RentalHistory)
--- 김철수: 맥북 1번을 빌렸다가 이미 반납함 (과거 기록)
-INSERT INTO rental_history (equipment_item_id, member_name, rental_date, return_date, history_status)
-VALUES (1, '김철수', '2026-02-20 09:00:00', '2026-02-22 15:00:00', 'RETURNED');
-
--- 홍길동: 소니 카메라(5번)를 현재 빌리고 있음
-INSERT INTO rental_history (equipment_item_id, member_name, rental_date, return_date, history_status)
-VALUES (5, '홍길동', '2026-03-05 10:00:00', NULL, 'RENTED');
-
--- 이영희: 맥북 3번을 현재 빌리고 있음
-INSERT INTO rental_history (equipment_item_id, member_name, rental_date, return_date, history_status)
-VALUES (3, '이영희', '2026-03-07 14:00:00', NULL, 'RENTED');
+-- [B] 과거에 반납 완료된 데이터 (23개: 페이징 유지용)
+INSERT INTO rental_history (equipment_item_id, member_name, rental_date, return_date, history_status) VALUES
+                                                                                                          (1, '김철수', '2026-02-20 09:00:00', '2026-02-22 15:00:00', 'RETURNED'),
+                                                                                                          (2, '박민수', '2026-03-01 09:30:00', '2026-03-03 10:00:00', 'RETURNED'),
+                                                                                                          (4, '정재호', '2026-03-03 16:20:00', '2026-03-04 09:00:00', 'RETURNED'),
+                                                                                                          (5, '강하늘', '2026-03-04 10:00:00', '2026-03-04 18:00:00', 'RETURNED'),
+                                                                                                          (1, '윤도현', '2026-03-04 13:00:00', '2026-03-05 17:00:00', 'RETURNED'),
+                                                                                                          (2, '한소희', '2026-03-05 08:00:00', '2026-03-05 20:00:00', 'RETURNED'),
+                                                                                                          (3, '김고은', '2026-03-05 11:30:00', '2026-03-06 14:00:00', 'RETURNED'),
+                                                                                                          (4, '이도현', '2026-03-06 09:00:00', '2026-03-06 18:00:00', 'RETURNED'),
+                                                                                                          (5, '조세호', '2026-03-06 15:00:00', '2026-03-07 10:00:00', 'RETURNED'),
+                                                                                                          (1, '유재석', '2026-03-07 10:20:00', '2026-03-07 18:00:00', 'RETURNED'),
+                                                                                                          (2, '하동훈', '2026-03-07 12:00:00', '2026-03-08 09:00:00', 'RETURNED'),
+                                                                                                          (3, '송지효', '2026-03-08 11:00:00', '2026-03-08 17:00:00', 'RETURNED'),
+                                                                                                          (4, '지석진', '2026-03-08 14:30:00', '2026-03-09 13:00:00', 'RETURNED'),
+                                                                                                          (5, '박명수', '2026-03-09 09:00:00', '2026-03-09 15:00:00', 'RETURNED'),
+                                                                                                          (1, '정준하', '2026-03-09 10:00:00', '2026-03-09 18:00:00', 'RETURNED'),
+                                                                                                          (2, '노홍철', '2026-03-09 11:00:00', '2026-03-09 20:00:00', 'RETURNED'),
+                                                                                                          (3, '길성준', '2026-03-10 08:00:00', '2026-03-10 12:00:00', 'RETURNED'),
+                                                                                                          (5, '차은우', '2026-03-10 14:00:00', '2026-03-10 16:00:00', 'RETURNED'),
+                                                                                                          (1, '장도연', '2026-03-10 15:00:00', '2026-03-10 17:00:00', 'RETURNED'),
+                                                                                                          (2, '양세찬', '2026-03-10 16:30:00', '2026-03-10 17:30:00', 'RETURNED'),
+                                                                                                          (4, '소이현', '2026-03-10 18:00:00', '2026-03-10 20:00:00', 'RETURNED'),
+                                                                                                          (3, '이영희', '2026-03-07 14:00:00', '2026-03-08 10:00:00', 'RETURNED'),
+                                                                                                          (5, '홍길동', '2026-03-05 10:00:00', '2026-03-06 12:00:00', 'RETURNED');

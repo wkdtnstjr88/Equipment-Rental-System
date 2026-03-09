@@ -115,4 +115,6 @@ public class EquipmentService {
                 .map(EquipmentItemResponseDTO::new)
                 .collect(Collectors.toList());
     }
+
+
 }

@@ -5,6 +5,10 @@ import com.example.EquipmentRentalSystem.dto.RentalHistoryResponseDTO;
 import com.example.EquipmentRentalSystem.service.EquipmentService;
 import com.example.EquipmentRentalSystem.service.RentalService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,18 +31,20 @@ public class RentalController {
     public String rentalHistoryList(
             @RequestParam(value = "searchType", required = false, defaultValue = "equipmentName") String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,
+            // 💡 @PageableDefault를 사용하면 파라미터가 없을 때 기본값을 자동으로 채워줍니다.
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             Model model) {
 
-        List<RentalHistoryResponseDTO> histories = rentalService.getDynamicSearchHistories(searchType, keyword);
+        // 1. 서비스 호출 (이제 List가 아닌 Page 객체를 받습니다)
+        Page<RentalHistoryResponseDTO> historyPage = rentalService.getRentalHistories(searchType, keyword, pageable);
 
-        model.addAttribute("histories", histories);
-        model.addAttribute("searchType", searchType); // 선택된 검색 타입 유지
-        model.addAttribute("keyword", keyword);       // 입력된 키워드 유지
+        // 2. 화면에 전달할 데이터 담기
+        model.addAttribute("histories", historyPage.getContent()); // 실제 목록 데이터 (List)
+        model.addAttribute("page", historyPage);                   // 페이징 관련 정보 (전체 페이지 등)
+        model.addAttribute("searchType", searchType);              // 검색 조건 유지용
+        model.addAttribute("keyword", keyword);                    // 검색어 유지용
 
-        // 모달용 데이터
-        model.addAttribute("items", equipmentService.getAllAvailableItems());
-
-        return "historyList";
+        return "historyList"; // 대여 이력 HTML 파일명
     }
 
     @GetMapping("/rentals/new")

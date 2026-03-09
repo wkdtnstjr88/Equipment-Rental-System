@@ -7,6 +7,8 @@ import com.example.EquipmentRentalSystem.entity.RentalHistory;
 import com.example.EquipmentRentalSystem.repository.EquipmentItemRepository;
 import com.example.EquipmentRentalSystem.repository.RentalHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,23 +25,18 @@ public class RentalService {
     private final EquipmentItemRepository equipmentItemRepository;
 
 
+    /**
+     * [대여 이력 페이징 조회]
+     * 전체 조회와 동적 검색을 하나의 메서드로 처리합니다.
+     */
     @Transactional(readOnly = true)
-    public List<RentalHistoryResponseDTO> getAllRentalHistories() {
-        return rentalHistoryRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
+    public Page<RentalHistoryResponseDTO> getRentalHistories(String searchType, String keyword, Pageable pageable) {
+        // Repository에서 엔티티 페이지를 가져옵니다.
+        // (searchType이 없어도 Repository의 @Query에서 기본 처리가 됩니다.)
+        Page<RentalHistory> historyPage = rentalHistoryRepository.findByDynamicSearch(searchType, keyword, pageable);
 
-    @Transactional(readOnly = true)
-    public List<RentalHistoryResponseDTO> getDynamicSearchHistories(String searchType, String keyword) {
-        // 검색 타입이 없으면 기본값 설정 또는 전체 조회
-        if (searchType == null || searchType.isEmpty()) {
-            return getAllRentalHistories();
-        }
-
-        return rentalHistoryRepository.findByDynamicSearch(searchType, keyword).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        // 가져온 엔티티들을 DTO로 변환하여 반환합니다.
+        return historyPage.map(this::convertToDTO);
     }
 
     private RentalHistoryResponseDTO convertToDTO(RentalHistory history) {
