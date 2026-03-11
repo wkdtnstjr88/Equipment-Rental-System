@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -63,16 +64,20 @@ public class RentalController {
         return "rentalForm"; // 대여 신청 페이지 이름
     }
 
+    // RentalController.java
     @PostMapping("/rentals/new")
-    public String createRental(@Valid @ModelAttribute RentalRequestDTO requestDto, RedirectAttributes reAttributes) {
-        try {
-            rentalService.createRental(requestDto);
-            reAttributes.addFlashAttribute("message", "대여 신청이 완료되었습니다!");
-        } catch (Exception e) {
-            // 💡 여기서 e.getMessage()를 찍어주면 왜 화면이 안 나오는지 이유가 보입니다!
-            reAttributes.addFlashAttribute("errorMessage", "오류 원인: " + e.getMessage());
-            e.printStackTrace(); // 서버 콘솔에 상세 로그 출력
+    public String createRental(@Valid @ModelAttribute("rentalRequest") RentalRequestDTO dto,
+                               BindingResult bindingResult,
+                               Model model) {
+
+        // 💡 검증 에러가 하나라도 있다면
+        if (bindingResult.hasErrors()) {
+            // 장비 목록을 다시 채워서 폼으로 전달
+            model.addAttribute("items", equipmentService.getAllAvailableItems());
+            return "rentalForm"; // 👈 에러 메시지를 품고 다시 입력 페이지로!
         }
+
+        rentalService.createRental(dto);
         return "redirect:/rentals/history";
     }
 
