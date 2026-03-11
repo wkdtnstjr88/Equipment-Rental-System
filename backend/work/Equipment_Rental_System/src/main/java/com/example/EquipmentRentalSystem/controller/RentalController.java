@@ -5,6 +5,7 @@ import com.example.EquipmentRentalSystem.dto.RentalHistoryResponseDTO;
 import com.example.EquipmentRentalSystem.dto.RentalRequestDTO;
 import com.example.EquipmentRentalSystem.service.EquipmentService;
 import com.example.EquipmentRentalSystem.service.RentalService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,7 +64,7 @@ public class RentalController {
     }
 
     @PostMapping("/rentals/new")
-    public String createRental(@ModelAttribute RentalRequestDTO requestDto, RedirectAttributes reAttributes) {
+    public String createRental(@Valid @ModelAttribute RentalRequestDTO requestDto, RedirectAttributes reAttributes) {
         try {
             rentalService.createRental(requestDto);
             reAttributes.addFlashAttribute("message", "대여 신청이 완료되었습니다!");
