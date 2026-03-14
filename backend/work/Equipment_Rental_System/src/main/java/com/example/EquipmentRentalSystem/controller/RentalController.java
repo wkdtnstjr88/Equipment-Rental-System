@@ -3,6 +3,7 @@ package com.example.EquipmentRentalSystem.controller;
 import com.example.EquipmentRentalSystem.dto.EquipmentItemResponseDTO;
 import com.example.EquipmentRentalSystem.dto.RentalHistoryResponseDTO;
 import com.example.EquipmentRentalSystem.dto.RentalRequestDTO;
+import com.example.EquipmentRentalSystem.entity.Member;
 import com.example.EquipmentRentalSystem.service.EquipmentService;
 import com.example.EquipmentRentalSystem.service.RentalService;
 import jakarta.validation.Valid;
@@ -48,7 +49,9 @@ public class RentalController {
     }
 
     @GetMapping("/rentals/new")
-    public String newRentalForm(@RequestParam(value = "equipmentId", required = false) Long equipmentId, Model model) {
+    public String newRentalForm(@RequestParam(value = "equipmentId", required = false) Long equipmentId
+                                            ,@SessionAttribute(name = "loginMember", required = false) Member loginMember
+                                            ,Model model) {
         List<EquipmentItemResponseDTO> availableItems;
 
         if (equipmentId != null) {
