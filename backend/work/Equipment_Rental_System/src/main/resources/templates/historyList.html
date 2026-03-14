@@ -2,49 +2,99 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>장비 대여 이력</title>
+    <title>備品貸出履歴 - Equipment Rental System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; }
-        .container { max-width: 1200px; padding-top: 50px; }
-        .history-card { background: white; border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Noto Sans JP', 'Pretendard', sans-serif;
+            padding-top: 80px;
+        }
 
-        /* 상태별 배지 스타일 */
+        /* ナビゲーションバー */
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .navbar-brand {
+            font-weight: 800;
+            color: #0d6efd !important;
+        }
+
+        .container { max-width: 1200px; }
+        .history-card {
+            background: white;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        /* 状態別バッジ */
         .badge-rented { background-color: #0d6efd; color: white; font-weight: 600; border-radius: 6px; }
         .badge-returned { background-color: #f1f3f5; color: #6c757d; font-weight: 600; border-radius: 6px; }
 
         .table thead { background-color: #f1f3f5; }
         .pagination .page-link { color: #495057; border: none; padding: 0.5rem 0.8rem; margin: 0 2px; border-radius: 6px; }
         .pagination .page-item.active .page-link { background-color: #0d6efd; color: white; }
-        .pagination .page-item.disabled .page-link { color: #ced4da; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">Rental System</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="ms-auto d-flex align-items-center">
+                <th:block th:if="${session.loginMember != null}">
+                    <span class="me-3 small text-muted">
+                        <i class="bi bi-person-circle me-1"></i>
+                        ようこそ、<strong th:text="${session.loginMember.name}">ユーザー</strong> 様
+                    </span>
+                    <a th:href="@{/members/edit}" class="btn btn-sm btn-outline-primary me-2">会員情報修正</a>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">ログアウト</button>
+                    </form>
+                </th:block>
+
+                <th:block th:if="${session.loginMember == null}">
+                    <a th:href="@{/login}" class="btn btn-sm btn-outline-primary me-2">ログイン</a>
+                    <a th:href="@{/members/add}" class="btn btn-sm btn-primary px-3">新規登録</a>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
-            <h2 class="fw-bold mb-1">📜 장비 대여 이력</h2>
-            <p class="text-muted mb-0">대여 중인 항목은 빨간색 '반납' 버튼으로 즉시 반납이 가능합니다.</p>
+            <h2 class="fw-bold mb-1">📜 備品貸出履歴</h2>
+            <p class="text-muted mb-0">貸出中または返却済みの全履歴を確認・管理できます。</p>
         </div>
 
         <div class="d-flex gap-2">
             <form th:action="@{/rentals/history}" method="get" id="searchForm" class="d-flex gap-1 align-items-center">
-                <select name="searchType" id="searchType" class="form-select form-select-sm" style="width: 130px;">
-                    <option value="equipmentName" th:selected="${searchType == 'equipmentName'}">장비명</option>
-                    <option value="serialNumber" th:selected="${searchType == 'serialNumber'}">시리얼 번호</option>
-                    <option value="memberName" th:selected="${searchType == 'memberName'}">대여자</option>
-                    <option value="rentalDate" th:selected="${searchType == 'rentalDate'}">대여일</option>
-                    <option value="returnDate" th:selected="${searchType == 'returnDate'}">반납일</option>
-                    <option value="status" th:selected="${searchType == 'status'}">상태</option>
+                <select name="searchType" id="searchType" class="form-select form-select-sm" style="width: 140px;">
+                    <option value="equipmentName" th:selected="${searchType == 'equipmentName'}">備品名</option>
+                    <option value="serialNumber" th:selected="${searchType == 'serialNumber'}">シリアル番号</option>
+                    <option value="memberName" th:selected="${searchType == 'memberName'}">借用者</option>
+                    <option value="rentalDate" th:selected="${searchType == 'rentalDate'}">貸出日</option>
+                    <option value="returnDate" th:selected="${searchType == 'returnDate'}">返却日</option>
+                    <option value="status" th:selected="${searchType == 'status'}">状態</option>
                 </select>
-                <input type="text" id="keywordText" th:value="${keyword}" class="form-control form-control-sm" placeholder="검색어 입력..." style="width: 180px;">
+                <input type="text" id="keywordText" th:value="${keyword}" class="form-control form-control-sm" placeholder="キーワード入力..." style="width: 180px;">
                 <input type="date" id="keywordDate" class="form-control form-control-sm" style="display: none; width: 180px;">
                 <input type="hidden" name="keyword" id="realKeyword">
-                <button type="submit" class="btn btn-sm btn-dark px-3">검색</button>
+                <button type="submit" class="btn btn-sm btn-dark px-3">検索</button>
             </form>
-            <a href="/equipments" class="btn btn-outline-dark px-4 btn-sm d-flex align-items-center">💻 장비 목록</a>
+            <a href="/equipments" class="btn btn-outline-dark px-4 btn-sm d-flex align-items-center">💻 備品一覧</a>
         </div>
     </div>
 
@@ -54,44 +104,42 @@
                 <thead class="table-light">
                 <tr>
                     <th class="py-3 ps-4">ID</th>
-                    <th class="py-3">장비명</th>
-                    <th class="py-3">시리얼 번호</th>
-                    <th class="py-3">대여자</th>
-                    <th class="py-3">대여일</th>
-                    <th class="py-3">반납일</th>
-                    <th class="py-3 text-center">상태 및 관리</th>
+                    <th class="py-3">備品名</th>
+                    <th class="py-3">シリアル番号</th>
+                    <th class="py-3">借용者</th>
+                    <th class="py-3">貸出日</th>
+                    <th class="py-3">返却日</th>
+                    <th class="py-3 text-center">状態 / 管理</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:if="${#lists.isEmpty(historyList)}">
-                    <td colspan="7" class="text-center py-5 text-muted">대여 이력이 존재하지 않습니다.</td>
+                    <td colspan="7" class="text-center py-5 text-muted">貸出履歴が存在しません。</td>
                 </tr>
 
                 <tr th:each="history : ${historyList}">
                     <td class="py-3 ps-4 text-muted" th:text="${history.id}">1</td>
-                    <td class="py-3 fw-bold" th:text="${history.equipmentName}">장비명</td>
+                    <td class="py-3 fw-bold" th:text="${history.equipmentName}">備品名</td>
                     <td class="py-3 font-monospace text-secondary" th:text="${history.serialNumber}">SN-0000</td>
                     <td class="py-3" th:text="${history.memberName}">홍길동</td>
                     <td class="py-3 text-muted small" th:text="${history.rentalDate}">2026-03-08</td>
-                    <td class="py-3 text-muted small" th:text="${history.returnDate}">-</td>
+                    <td class="py-3 text-muted small" th:text="${history.returnDate ?: '-'}">-</td>
 
                     <td class="py-3 text-center">
                         <div class="d-flex justify-content-center align-items-center gap-2">
-
                             <span class="badge px-3 py-2"
                                   th:classappend="${history.historyStatus == '대여 중' ? 'badge-rented' : 'badge-returned'}"
-                                  th:text="${history.historyStatus}">
-                                상태
+                                  th:text="${history.historyStatus == '대여 중' ? '貸出中' : '返却済'}">
+                                状態
                             </span>
 
                             <form th:if="${history.historyStatus == '대여 중'}"
                                   th:action="@{/rentals/return/{id}(id=${history.id})}"
                                   method="post" class="mb-0">
                                 <button type="submit" class="btn btn-sm btn-danger px-3 py-1 fw-bold"
-                                        style="font-size: 0.8rem; box-shadow: 0 2px 5px rgba(220,53,69,0.1);"
-                                        onclick="return confirm('정말로 반납 처리하시겠습니까?')">반납</button>
+                                        style="font-size: 0.8rem;"
+                                        onclick="return confirm('本当に返却処理を行いますか？')">返却</button>
                             </form>
-
                         </div>
                     </td>
                 </tr>
@@ -116,6 +164,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function() {
+        // 알림 메시지 일본어 대응은 백엔드에서 내려주는 메시지에 따라 결정됨
         const message = [[${message}]];
         const errorMessage = [[${errorMessage}]];
         if (message) alert(message);
@@ -139,6 +188,7 @@
         }
         searchType.addEventListener('change', updateInputDisplay);
         updateInputDisplay();
+
         searchForm.addEventListener('submit', function() {
             realKeyword.value = (keywordDate.style.display === 'block') ? keywordDate.value : keywordText.value;
         });

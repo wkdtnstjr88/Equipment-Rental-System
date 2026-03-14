@@ -17,15 +17,31 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg fixed-top">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container">
-        <a class="navbar-brand fw-bold text-primary" th:href="@{/}"><i class="bi bi-cpu-fill me-2"></i>RENTAL</a>
-        <div class="ms-auto d-flex align-items-center gap-3">
-            <th:block th:if="${session.loginMember != null}">
-                <span class="small fw-bold text-dark"><i class="bi bi-person-circle me-1"></i><span th:text="${session.loginMember.name}">ユーザー</span> 様</span>
-                <a th:href="@{/members/edit}" class="btn btn-sm btn-outline-secondary">個人情報管理</a>
-                <form th:action="@{/logout}" method="post" class="m-0"><button type="submit" class="btn btn-sm btn-outline-danger">ログアウト</button></form>
-            </th:block>
+        <a class="navbar-brand" th:href="@{/}">Rental System</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="ms-auto d-flex align-items-center">
+                <th:block th:if="${session.loginMember != null}">
+                    <span class="me-3 small text-muted">
+                        <i class="bi bi-person-circle me-1"></i>
+                        ようこそ、<strong th:text="${session.loginMember.name}">ユーザー</strong> 様
+                    </span>
+                    <a th:href="@{/members/edit}" class="btn btn-sm btn-outline-primary me-2">会員情報修正</a>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">ログアウト</button>
+                    </form>
+                </th:block>
+
+                <th:block th:if="${session.loginMember == null}">
+                    <a th:href="@{/login}" class="btn btn-sm btn-outline-primary me-2">ログイン</a>
+                    <a th:href="@{/members/add}" class="btn btn-sm btn-primary px-3">新規登録</a>
+                </th:block>
+            </div>
         </div>
     </div>
 </nav>
