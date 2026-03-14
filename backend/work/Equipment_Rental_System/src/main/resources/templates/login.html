@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Equipment Rental System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            background: white;
+            overflow: hidden;
+        }
+        .login-header {
+            background: #0d6efd;
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 12px;
+            border: 2px solid #f1f3f5;
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: none;
+        }
+        .btn-login {
+            padding: 12px;
+            font-weight: 700;
+            border-radius: 10px;
+            background: #0d6efd;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-login:hover {
+            background: #0b5ed7;
+            transform: translateY(-2px);
+        }
+        .error-msg {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="login-card">
+                <div class="login-header">
+                    <h3 class="fw-bold mb-0">Login</h3>
+                    <small class="opacity-75">Welcome Back!</small>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">ID</label>
+                            <input type="text" name="loginId" class="form-control" placeholder="아이디를 입력하세요" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="비밀번호를 입력하세요" required>
+                        </div>
+
+                        <div th:if="${loginError}" class="error-msg mb-3" th:text="${loginError}"></div>
+
+                        <button type="submit" class="btn btn-primary btn-login w-100">로그인하기</button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <span class="small text-muted">계정이 없으신가요?</span>
+                        <a th:href="@{/members/add}" class="small text-primary text-decoration-none fw-bold ms-1">회원가입</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

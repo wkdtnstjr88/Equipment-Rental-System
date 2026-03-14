@@ -26,4 +26,10 @@ public class MemberService {
                     throw new MemberException("이미 사용 중인 아이디입니다.");
                 });
     }
+
+    public Member login(String loginId, String password) {
+        return memberRepository.findByLoginId(loginId)
+                .filter(m -> m.getPassword().equals(password))
+                .orElse(null);
+    }
 }
