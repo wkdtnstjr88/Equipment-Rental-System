@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>会員情報修正 - Equipment Rental System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh; display: flex; align-items: center; padding: 40px 0;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .form-card { border: none; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); background: white; overflow: hidden; }
+        .form-header { background: #0d6efd; padding: 30px; color: white; text-align: center; }
+        .form-control:read-only { background-color: #f8f9fa; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card form-card">
+                <div class="form-header">
+                    <h3 class="fw-bold mb-0">会員情報修正</h3>
+                    <small class="opacity-75">Profile Update</small>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form th:action="@{/members/edit}" th:object="${member}" method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">ログインID</label>
+                            <input type="text" th:field="*{loginId}" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">新しいパスワード</label>
+                            <input type="password" name="password" class="form-control" placeholder="変更する場合のみ入力">
+                            <div class="form-text mt-1" style="font-size: 0.7rem;">
+                                ※ 8~20字의 영문, 숫자, 특수문자 조합
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">お名前</label>
+                            <input type="text" th:field="*{name}" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-secondary">メールアドレス</label>
+                            <input type="email" th:field="*{email}" class="form-control" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-secondary">住所</label>
+                            <input type="text" th:field="*{address}" class="form-control" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mb-3">保存する</button>
+
+                        <div class="text-center">
+                            <a th:href="@{/}" class="text-decoration-none small text-muted">キャンセル (戻る)</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /* GlobalExceptionHandler에서 보낸 errorMessage가 있을 경우 alert 표시 */
+    const errorMessage = [[${errorMessage}]];
+    if (errorMessage) {
+        alert(errorMessage);
+    }
+</script>
+
+</body>
+</html>
