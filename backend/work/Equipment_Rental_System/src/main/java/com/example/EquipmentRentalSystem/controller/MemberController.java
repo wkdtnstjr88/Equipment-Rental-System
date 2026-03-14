@@ -88,7 +88,7 @@ public class MemberController {
             // GlobalExceptionHandler가 처리하지만,
             // 폼으로 직접 메시지를 보내고 싶을 때 사용
             ra.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/";
+            return "redirect:/members/edit";
         }
     }
 }
