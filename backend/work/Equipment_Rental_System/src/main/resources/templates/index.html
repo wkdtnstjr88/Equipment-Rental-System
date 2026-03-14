@@ -12,6 +12,7 @@
             height: 100vh;
             display: flex;
             align-items: center;
+            margin: 0;
         }
         .main-card {
             border: none;
@@ -38,14 +39,23 @@
             justify-content: center;
             height: 100%;
             border-width: 2px;
+            text-decoration: none;
         }
         .btn-menu:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
         .menu-icon { font-size: 2.5rem; margin-bottom: 15px; }
-        /* 명사 위주의 서브 텍스트 스타일 */
         .sub-text { font-size: 0.85rem; font-weight: 400; color: #6c757d; margin-top: 8px; }
+
+        /* 유저 정보 섹션 스타일 */
+        .user-status-box {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -61,19 +71,45 @@
                 </div>
 
                 <div class="card-body p-5">
+
+                    <div class="user-status-area text-center">
+
+                        <div th:if="${session.loginMember == null}" class="mb-5">
+                            <p class="text-muted small mb-3">서비스 이용을 위해 로그인이 필요합니다.</p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a th:href="@{/login}" class="btn btn-primary px-4 py-2 fw-bold">로그인</a>
+                                <a th:href="@{/members/add}" class="btn btn-outline-primary px-4 py-2 fw-bold">회원가입</a>
+                            </div>
+                        </div>
+
+                        <div th:if="${session.loginMember != null}" class="user-status-box">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="text-start">
+                                    <div class="badge bg-primary-subtle text-primary mb-1 px-3">Authorized User</div>
+                                    <h5 class="mb-0 fw-bold text-dark">
+                                        <span th:text="${session.loginMember.name}">사용자</span>님, 반갑습니다!
+                                    </h5>
+                                </div>
+                                <form th:action="@{/logout}" method="post" class="m-0">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger px-3">로그아웃</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row g-4">
                         <div class="col-6">
-                            <a href="/equipments" class="btn btn-outline-primary btn-menu">
+                            <a th:href="@{/equipments}" class="btn btn-outline-primary btn-menu">
                                 <span class="menu-icon">📦</span>
-                                <span>備品貸출状況</span>
+                                <span>備品貸出状況</span>
                                 <span class="sub-text">在庫確認・貸出申請</span>
                             </a>
                         </div>
                         <div class="col-6">
-                            <a href="/rentals/history" class="btn btn-outline-dark btn-menu">
+                            <a th:href="@{/rentals/history}" class="btn btn-outline-dark btn-menu">
                                 <span class="menu-icon">📜</span>
                                 <span>貸出履歴管理</span>
-                                <span class="sub-text">返却処理・履歴確認</span>
+                                <span class="sub-text">返却処理・履歴확인</span>
                             </a>
                         </div>
                     </div>
@@ -88,5 +124,6 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

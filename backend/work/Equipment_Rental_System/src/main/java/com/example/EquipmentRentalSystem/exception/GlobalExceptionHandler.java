@@ -24,4 +24,12 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorMessage", "현재 서비스 이용이 어렵습니다. 잠시 후 다시 시도해 주세요.");
         return "error-page"; // 👈 templates/error-page.html 파일 실행
     }
+
+    // ✅ 3. 회원 관련 예외 처리
+    @ExceptionHandler(MemberException.class)
+    public String handleMemberException(MemberException e, RedirectAttributes ra) {
+        // 가입 폼으로 되돌려 보내면서 에러 메시지를 전달
+        ra.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect/members/add";
+    }
 }
