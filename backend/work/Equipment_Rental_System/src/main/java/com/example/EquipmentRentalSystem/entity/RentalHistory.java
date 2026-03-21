@@ -10,9 +10,8 @@ import java.time.LocalDateTime;
 @Setter
 public class RentalHistory {
 
-    // 대여 이력 상태 상수 정의
-    public static final String STATUS_RENTED = "RENTED";      // 대여 중
-    public static final String STATUS_RETURNED = "RETURNED";  // 반납 완료
+    public static final String STATUS_RENTED = "RENTED";
+    public static final String STATUS_RETURNED = "RETURNED";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +26,5 @@ public class RentalHistory {
     private LocalDateTime rentalDate;
     private LocalDateTime returnDate;
 
-    private String historyStatus; // 위의 상수값들이 저장됨
+    private String historyStatus;
 }

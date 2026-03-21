@@ -24,7 +24,7 @@ public class MemberService {
     private void validateDuplicateMember(Member member) {
         memberRepository.findByLoginId(member.getLoginId())
                 .ifPresent(m->{
-                    throw new MemberException("이미 사용 중인 아이디입니다.");
+                    throw new MemberException("このIDは既に使用されています。");
                 });
     }
 
@@ -37,23 +37,19 @@ public class MemberService {
     @Transactional
     public void updateMember(Long memberId, Member updateParam) {
         Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException("該当하는 회원 정보가 없습니다."));
+                .orElseThrow(() -> new MemberException("該当する会員情報が見つかりません。"));
 
-        // 1. 이메일, 이름, 주소 업데이트
         findMember.setEmail(updateParam.getEmail());
         findMember.setName(updateParam.getName());
         findMember.setAddress(updateParam.getAddress());
 
-        // 2. 비밀번호 유효성 검사 (입력값이 있을 때만 실행)
         String password = updateParam.getPassword();
         if (password != null && !password.isEmpty()) {
 
-            // 정규표현식: 영어(대소문자), 숫자, 특수문자 포함 8~20자
             String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$";
 
             if (!Pattern.matches(passwordPattern, password)) {
-                // 일본어 취업 대비용 메시지
-                throw new MemberException("パスワードは8~20字で、英字、数字、特殊文字(@$!%*#?&)를 모두 포함해야 합니다.");
+                throw new MemberException("パスワードは8〜20文字で、英字、数字、特殊文字（@$!%*#?&）をすべて含める必要があります。");
             }
 
             findMember.setPassword(password);

@@ -16,10 +16,10 @@ public class EquipmentItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String serialNumber; // 예: SN-001
-    private String status;       // AVAILABLE, RENTED, BROKEN
+    private String serialNumber;
+    private String status;
 
     @ManyToOne
-    @JoinColumn(name = "equipment_id") // DB 외래키 컬럼명
+    @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 }

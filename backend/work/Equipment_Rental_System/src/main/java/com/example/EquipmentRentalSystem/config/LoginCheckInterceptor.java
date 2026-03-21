@@ -13,12 +13,10 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("loginMember") == null) {
-            // 로그인되지 않은 사용자가 대여 등을 시도할 경우 로그인 페이지로 리다이렉트
-            // 로그인 성공 후 원래 보려던 페이지로 보내주기 위해 redirectURL 파라미터를 추가합니다.
             response.sendRedirect("/login?redirectURL=" + requestURI);
-            return false; // 컨트롤러 진입 차단
+            return false;
         }
 
-        return true; // 로그인 되어 있으면 정상 진행
+        return true;
     }
 }

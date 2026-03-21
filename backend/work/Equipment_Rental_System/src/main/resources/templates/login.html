@@ -69,21 +69,21 @@
                     <form th:action="@{/login}" method="post">
                         <div class="mb-3">
                             <label class="form-label fw-bold small">ID</label>
-                            <input type="text" name="loginId" class="form-control" placeholder="아이디를 입력하세요" required>
+                            <input type="text" name="loginId" class="form-control" placeholder="IDを入力してください" required>
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-bold small">Password</label>
-                            <input type="password" name="password" class="form-control" placeholder="비밀번호를 입력하세요" required>
+                            <input type="password" name="password" class="form-control" placeholder="パスワードを入力してください" required>
                         </div>
 
                         <div th:if="${loginError}" class="error-msg mb-3" th:text="${loginError}"></div>
 
-                        <button type="submit" class="btn btn-primary btn-login w-100">로그인하기</button>
+                        <button type="submit" class="btn btn-primary btn-login w-100">ログイン</button>
                     </form>
 
                     <div class="text-center mt-4">
-                        <span class="small text-muted">계정이 없으신가요?</span>
-                        <a th:href="@{/members/add}" class="small text-primary text-decoration-none fw-bold ms-1">회원가입</a>
+                        <span class="small text-muted">アカウントをお持ちでない方はこちら</span>
+                        <a th:href="@{/members/add}" class="small text-primary text-decoration-none fw-bold ms-1">会員登録</a>
                     </div>
                 </div>
             </div>

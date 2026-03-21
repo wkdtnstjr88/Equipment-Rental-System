@@ -82,7 +82,7 @@
             <div class="form-card">
                 <div class="form-header">
                     <h3 class="fw-bold mb-1">Create Account</h3>
-                    <p class="mb-0 opacity-75 small">회원정보를 입력해주세요</p>
+                    <p class="mb-0 opacity-75 small">会員情報を入力してください。</p>
                 </div>
 
                 <div class="card-body p-4 p-md-5">
@@ -91,21 +91,21 @@
                         <div class="section-title">Account Info</div>
 
                         <div class="mb-3">
-                            <label class="form-label">로그인 ID</label>
-                            <input type="text" name="loginId" class="form-control" placeholder="아이디를 입력하세요" required>
+                            <label class="form-label">ログイン ID</label>
+                            <input type="text" name="loginId" class="form-control" placeholder="IDを入力してください" required>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label class="form-label">비밀번호</label>
+                                <label class="form-label">パスワード</label>
                                 <input type="password" name="password" class="form-control"
-                                       placeholder="8~16자, 영문/숫자/특수문자 포함"
+                                       placeholder="8〜16文字の英数字・記号を含めてください。
                                        pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$"
-                                       title="비밀번호는 8~16자이며, 영문 대소문자, 숫자, 특수문자를 모두 포함해야 합니다."
+                                       title="パスワードは8〜16文字で、英大文字・小文字、数字、記号をすべて含める必要があります。"
                                        required>
                             </div>
                             <div class="col-6">
-                                <label class="form-label">비밀번호 확인</label>
+                                <label class="form-label">パスワード 確認</label>
                                 <input type="password" name="passwordConfirm" class="form-control" placeholder="Confirm" required>
                             </div>
                         </div>
@@ -113,24 +113,24 @@
                         <div class="section-title mt-4">Personal Info</div>
 
                         <div class="mb-3">
-                            <label class="form-label">이름</label>
-                            <input type="text" name="name" class="form-control" placeholder="이름을 입력하세요" required>
+                            <label class="form-label">お名前</label>
+                            <input type="text" name="name" class="form-control" placeholder="お名前を入力してください" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">이메일</label>
+                            <label class="form-label">メールアドレス</label>
                             <input type="email" name="email" class="form-control" placeholder="example@mail.com" required>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">주소</label>
-                            <input type="text" name="address" class="form-control" placeholder="배송받을 주소를 입력하세요" required>
+                            <label class="form-label">ご住所</label>
+                            <input type="text" name="address" class="form-control" placeholder="お届け先の住所を入力してください。" required>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-join w-100 mt-2">가입하기</button>
+                        <button type="submit" class="btn btn-primary btn-join w-100 mt-2">会員登録</button>
 
                         <div class="text-center mt-4">
-                            <a th:href="@{/}" class="text-decoration-none small text-muted">홈으로 돌아가기</a>
+                            <a th:href="@{/}" class="text-decoration-none small text-muted">ホームへ</a>
                         </div>
                     </form>
                 </div>

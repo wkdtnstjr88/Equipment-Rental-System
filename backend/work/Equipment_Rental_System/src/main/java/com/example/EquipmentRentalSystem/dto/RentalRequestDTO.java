@@ -11,12 +11,11 @@ import java.time.LocalDateTime;
 @Setter
 public class RentalRequestDTO {
 
-    @NotNull(message = "장비를 선택해주세요.")
+    @NotNull(message = "機器を選択してください。")
     private Long itemId;
-    @NotBlank(message = "대여자 성함을 입력해주세요.")
+    @NotBlank(message = "借用者の氏名を入力してください。")
     private String memberName;
 
-    // 💡 ISO 8601 형식(T 포함)을 명확히 지정하여 파싱 오류를 방지합니다.
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime rentalDate;
 

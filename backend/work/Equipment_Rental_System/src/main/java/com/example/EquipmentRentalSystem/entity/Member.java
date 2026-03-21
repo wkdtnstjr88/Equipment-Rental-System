@@ -15,9 +15,9 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String loginId; // 로그인용 ID
-    private String password; // 비밀번호
-    private String name;     // 이름
-    private String email;   // 이메일
-    private String address; // 주소
+    private String loginId;
+    private String password;
+    private String name;
+    private String email;
+    private String address;
 }

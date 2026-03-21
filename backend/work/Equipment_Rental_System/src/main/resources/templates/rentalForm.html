@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>장비 대여 신청</title>
+    <title>備品貸出申請</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; font-family: 'Pretendard', sans-serif; }
@@ -16,15 +16,15 @@
         <div class="col-md-6">
             <div class="card shadow border-0">
                 <div class="card-header bg-primary text-white py-3">
-                    <h5 class="mb-0 text-center">🚀 장비 대여 신청</h5>
+                    <h5 class="mb-0 text-center">備品貸出申請</h5>
                 </div>
                 <div class="card-body p-4">
                     <form th:action="@{/rentals/new}" method="post" id="rentalForm">
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">대여 가능 장비 선택</label>
+                            <label class="form-label fw-bold">貸出可能な備品を選択</label>
                             <select name="itemId" class="form-select" required>
-                                <option value="" th:selected="${selectedItemId == null}">-- 장비를 선택해주세요 --</option>
+                                <option value="" th:selected="${selectedItemId == null}">-- 備品を選択してください --</option>
                                 <option th:each="item : ${items}"
                                         th:value="${item.id}"
                                         th:text="|${item.equipmentName} (${item.serialNumber})|"
@@ -34,24 +34,24 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">대여자 성함</label>
-                            <input type="text" name="memberName" class="form-control" placeholder="성함을 입력하세요" required>
+                            <label class="form-label fw-bold">貸出者氏名</label>
+                            <input type="text" name="memberName" class="form-control" placeholder="お名前を入力してください" required>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">대여 시작 시간</label>
+                            <label class="form-label fw-bold">貸出開始日時</label>
                             <input type="datetime-local" id="rentalDate" name="rentalDate" class="form-control" required>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">반납 예정 시간</label>
+                            <label class="form-label fw-bold">返却予定日時</label>
                             <input type="datetime-local" id="returnDate" name="returnDate" class="form-control" required>
-                            <div id="dateHelp" class="form-text text-danger">최대 대여 기간은 7일입니다.</div>
+                            <div id="dateHelp" class="form-text text-danger">最大貸出期間は7日間です。</div>
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">대여 확정</button>
-                            <a href="/rentals/history" class="btn btn-outline-secondary">취소</a>
+                            <button type="submit" class="btn btn-primary btn-lg">貸出確定</button>
+                            <a href="/rentals/history" class="btn btn-outline-secondary">キャンセル</a>
                         </div>
                     </form>
                 </div>

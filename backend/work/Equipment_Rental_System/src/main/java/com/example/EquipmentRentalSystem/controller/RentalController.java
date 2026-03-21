@@ -21,63 +21,53 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 @Controller
-@RequiredArgsConstructor // 생성자 주입으로 서비스를 가져옵니다.
+@RequiredArgsConstructor
 public class RentalController {
 
     private final RentalService rentalService;
     private final EquipmentService equipmentService;
 
-    // 대여 이력 페이지 접속 주소: http://localhost:8080/rentals/history
     @GetMapping("/rentals/history")
     public String rentalHistoryList(
             @RequestParam(value = "searchType", required = false, defaultValue = "equipmentName") String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,
-            // 💡 @PageableDefault를 사용하면 파라미터가 없을 때 기본값을 자동으로 채워줍니다.
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             Model model) {
 
-        // 1. 서비스 호출 (이제 List가 아닌 Page 객체를 받습니다)
         Page<RentalHistoryResponseDTO> historyPage = rentalService.getRentalHistories(searchType, keyword, pageable);
 
-        // 2. 화면에 전달할 데이터 담기
-        model.addAttribute("historyList", historyPage.getContent()); // 실제 목록 데이터 (List)
-        model.addAttribute("page", historyPage);                   // 페이징 관련 정보 (전체 페이지 등)
-        model.addAttribute("searchType", searchType);              // 검색 조건 유지용
-        model.addAttribute("keyword", keyword);                    // 검색어 유지용
+        model.addAttribute("historyList", historyPage.getContent());
+        model.addAttribute("page", historyPage);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("keyword", keyword);
 
-        return "historyList"; // 대여 이력 HTML 파일명
+        return "historyList";
     }
 
     @GetMapping("/rentals/new")
     public String newRentalForm(@RequestParam(value = "equipmentId", required = false) Long equipmentId
-                                            ,@SessionAttribute(name = "loginMember", required = false) Member loginMember
                                             ,Model model) {
         List<EquipmentItemResponseDTO> availableItems;
 
         if (equipmentId != null) {
-            // 🔥 특정 장비 ID가 넘어온 경우, 해당 모델의 대여 가능한 아이템만 가져옵니다.
             availableItems = equipmentService.getAvailableItemsByEquipmentId(equipmentId);
         } else {
-            // ID가 없는 경우(직접 접속 등) 기존처럼 모든 대여 가능 아이템을 가져옵니다.
             availableItems = equipmentService.getAllAvailableItems();
         }
 
         model.addAttribute("items", availableItems);
         model.addAttribute("selectedItemId", equipmentId);
-        return "rentalForm"; // 대여 신청 페이지 이름
+        return "rentalForm";
     }
 
-    // RentalController.java
     @PostMapping("/rentals/new")
     public String createRental(@Valid @ModelAttribute("rentalRequest") RentalRequestDTO dto,
                                BindingResult bindingResult,
                                Model model) {
 
-        // 💡 검증 에러가 하나라도 있다면
         if (bindingResult.hasErrors()) {
-            // 장비 목록을 다시 채워서 폼으로 전달
             model.addAttribute("items", equipmentService.getAllAvailableItems());
-            return "rentalForm"; // 👈 에러 메시지를 품고 다시 입력 페이지로!
+            return "rentalForm";
         }
 
         rentalService.createRental(dto);
@@ -87,13 +77,12 @@ public class RentalController {
     @PostMapping("/rentals/return/{id}")
     public String returnRental(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            rentalService.returnRental(id); // 서비스 호출
-            redirectAttributes.addFlashAttribute("message", "정상적으로 반납되었습니다."); //
+            rentalService.returnRental(id);
+            redirectAttributes.addFlashAttribute("message", "正常に返却されました。"); //
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "반납 처리 중 오류가 발생했습니다: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "返却処理中にエラーが発生しました。: " + e.getMessage());
         }
 
-        // 반납 후 다시 이력 목록 페이지로 이동합니다.
         return "redirect:/rentals/history";
     }
 }

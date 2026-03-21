@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EquipmentController {
 
-    // Repository 대신 Service를 주입받습니다.
     private final EquipmentService equipmentService;
 
     @GetMapping("/equipments")
@@ -26,7 +25,6 @@ public class EquipmentController {
                        @RequestParam(required = false) String status,
                        Model model) {
 
-        // 변수 타입을 List<EquipmentItem>에서 List<EquipmentItemResponseDTO>로 변경합니다.
         List<EquipmentItemResponseDTO> items = equipmentService.searchItems(searchName, status);
 
         model.addAttribute("items", items);

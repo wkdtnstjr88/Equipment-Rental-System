@@ -32,32 +32,27 @@ class EquipmentServiceTest {
     private EquipmentItemRepository equipmentItemRepository;
 
     @Test
-    @DisplayName("정합성 테스트: 전체 5개 중 2개가 RENTED일 때, available 수량은 3이어야 한다")
+    @DisplayName("整合性テスト：全5個のうち2個が「貸出中」の場合、在庫数は3であること")
     void calculateStock_Success() {
-        // Given
         Equipment equipment = new Equipment();
         equipment.setId(1L);
-        equipment.setName("테스트 카메라");
+        equipment.setName("テスト用カメラ");
 
         when(equipmentRepository.findAll()).thenReturn(List.of(equipment));
 
-        // Mock 설정: 전체 5개, AVAILABLE 상태는 3개라고 가정
         when(equipmentItemRepository.countByEquipmentId(1L)).thenReturn(5L);
         when(equipmentItemRepository.countByEquipmentIdAndStatus(1L, "AVAILABLE")).thenReturn(3L);
 
-        // When
         List<EquipmentResponseDTO> result = equipmentService.getAllEquipmentsWithStock();
 
-        // Then
         assertEquals(1, result.size());
-        assertEquals(5, result.get(0).getTotalCount(), "전체 수량이 일치하지 않습니다.");
-        assertEquals(3, result.get(0).getAvailableCount(), "대여 가능 수량이 3이 아닙니다.");
+        assertEquals(5, result.get(0).getTotalCount(), "総数量が一致しません。");
+        assertEquals(3, result.get(0).getAvailableCount(), "貸出可能数量が3ではありません。");
     }
 
     @Test
-    @DisplayName("필터링 테스트: getAvailableItems 호출 시 AVAILABLE 상태인 아이템만 반환되어야 한다")
+    @DisplayName("フィルタリングテスト：getAvailableItems呼び出し時、「AVAILABLE」状態のアイテムのみ返却されること")
     void filterAvailableItems_Success() {
-        // Given: AVAILABLE 1개, RENTED 1개 준비
         EquipmentItem item1 = new EquipmentItem();
         item1.setStatus("AVAILABLE");
 
@@ -66,21 +61,17 @@ class EquipmentServiceTest {
 
         when(equipmentItemRepository.findAll()).thenReturn(List.of(item1, item2));
 
-        // When
         List<EquipmentItemResponseDTO> result = equipmentService.getAvailableItems();
 
-        // Then
-        assertEquals(1, result.size(), "필터링된 아이템 개수가 맞지 않습니다.");
+        assertEquals(1, result.size(), "フィルタリングされたアイテムの個数が一致しません。");
         assertEquals("AVAILABLE", result.get(0).getStatus());
     }
 
     @Test
-    @DisplayName("예외 테스트: 존재하지 않는 장비 ID 조회 시 IllegalArgumentException이 발생한다")
+    @DisplayName("例外テスト：存在しない備品IDの照会時、「IllegalArgumentException」が発生すること")
     void findDetails_Fail_NotFound() {
-        // Given: 999번 ID는 존재하지 않음
         when(equipmentRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(IllegalArgumentException.class, () -> {
             equipmentService.getItemDetails(999L);
         });

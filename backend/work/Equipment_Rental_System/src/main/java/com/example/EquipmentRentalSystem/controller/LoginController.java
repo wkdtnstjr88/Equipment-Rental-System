@@ -31,11 +31,10 @@ public class LoginController {
         Member loginMember = memberService.login(loginId, password);
 
         if (loginMember == null) {
-            model.addAttribute("loginError", "아이디 또는 비밀번호가 맞지 않습니다.");
+            model.addAttribute("loginError", "IDまたはパスワードが正しくありません。");
             return "login";
         }
 
-        // 로그인 성공 시 세션 생성
         HttpSession session = request.getSession();
         session.setAttribute("loginMember", loginMember);
 
