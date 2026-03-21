@@ -8,24 +8,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface RentalHistoryRepository extends JpaRepository<RentalHistory, Long> {
 
     @Query("SELECT r FROM RentalHistory r " +
             "JOIN FETCH r.equipmentItem ei " +
             "JOIN FETCH ei.equipment e " +
-            "WHERE (:keyword IS NULL OR :keyword = '' OR " +
-            "  (:searchType = 'equipmentName' AND e.name LIKE %:keyword%) OR " +
-            "  (:searchType = 'serialNumber' AND ei.serialNumber LIKE %:keyword%) OR " +
-            "  (:searchType = 'memberName' AND r.memberName LIKE %:keyword%) OR " +
-            "  (:searchType = 'status' AND ( " +
-            "     (:keyword = '貸出中' AND r.historyStatus = 'RENTED') OR " +
-            "     (:keyword = '返却完了' AND r.historyStatus = 'RETURNED') " +
-            "  )) " +
-            ")")
-
+            "WHERE (:searchType = 'equipmentName' AND e.name LIKE %:keyword%) OR " +
+            "(:searchType = 'serialNumber' AND ei.serialNumber LIKE %:keyword%) OR " +
+            "(:searchType = 'memberName' AND r.memberName LIKE %:keyword%) OR " +
+            "(:searchType = 'rentalDate' AND CAST(r.rentalDate AS string) LIKE %:keyword%) OR " +
+            "(:searchType = 'returnDate' AND CAST(r.returnDate AS string) LIKE %:keyword%) OR " + // CAST 추가!
+            "(:searchType = 'status' AND r.historyStatus LIKE %:keyword%)")
     Page<RentalHistory> findByDynamicSearch(@Param("searchType") String searchType,
                                             @Param("keyword") String keyword,
                                             Pageable pageable);

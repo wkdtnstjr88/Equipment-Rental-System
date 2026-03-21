@@ -27,24 +27,32 @@ public class MemberController {
     @PostMapping("/add")
     public String save(@ModelAttribute Member member,
                        @RequestParam String passwordConfirm,
-                       HttpServletRequest request) { // 👈 세션 생성을 위해 추가
+                       HttpServletRequest request,
+                       Model model) {
 
         String passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$";
 
-        if (!member.getPassword().matches(passwordPattern)) {
-            throw new MemberException("パスワードは英文字、数字、記号を組み合わせて8〜16文字で入力してください。");
+        try {
+            if (!member.getPassword().matches(passwordPattern)) {
+                throw new MemberException("パスワードは英文字、数字、記号を組み合わせて8〜16文字で入力してください。");
+            }
+
+            if(!member.getPassword().equals(passwordConfirm)) {
+                throw new MemberException("パスワードが一致しません。");
+            }
+
+            memberService.join(member);
+
+            HttpSession session = request.getSession();
+            session.setAttribute("loginMember", member);
+
+            return "redirect:/";
+
+        } catch (MemberException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("member", member);
+            return "members/addMemberForm";
         }
-
-        if(!member.getPassword().equals(passwordConfirm)) {
-            throw new MemberException("パスワードが一致しません。");
-        }
-
-        memberService.join(member);
-
-        HttpSession session = request.getSession();
-        session.setAttribute("loginMember", member);
-
-        return "redirect:/";
     }
 
     @GetMapping("/edit")

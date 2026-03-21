@@ -12,7 +12,7 @@ HttpSessionを活用したユーザー認証およびセッション管理の実
 
 ![Image](https://github.com/user-attachments/assets/6c4e2434-7769-4257-b337-f1fea4a51f57)
 
-✅ 備品貸出管理 (Rental Business Logic)
+2) 備品貸出管理 (Rental Business Logic)
 貸出制限ロジック: 過去の日付での予約禁止、および最大貸出期間（7日間）の制限を実装し、ビジネスルールの整合性を確保
 
 ステータス管理: 備品の貸出状態（AVAILABLE/RENTED）をリアルタイムで反映し、二重貸出を防止

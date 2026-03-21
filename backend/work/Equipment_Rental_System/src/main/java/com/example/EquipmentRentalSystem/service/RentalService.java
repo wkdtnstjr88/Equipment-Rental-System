@@ -35,13 +35,12 @@ public class RentalService {
 
     private RentalHistoryResponseDTO convertToDTO(RentalHistory history) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
         String rentalDateStr = history.getRentalDate() != null ? history.getRentalDate().format(formatter) : "-";
         String returnDateStr = history.getReturnDate() != null ? history.getReturnDate().format(formatter) : "-";
 
         Equipment equipment = history.getEquipmentItem().getEquipment();
-
         boolean isAvailable = equipmentItemRepository.existsByEquipmentIdAndStatus(equipment.getId(), "AVAILABLE");
-
         String statusDisplay = RentalHistory.STATUS_RENTED.equals(history.getHistoryStatus()) ? "貸出中" : "返却完了";
 
         return new RentalHistoryResponseDTO(

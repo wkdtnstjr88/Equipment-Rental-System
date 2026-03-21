@@ -30,7 +30,7 @@ public class RentalController {
     @GetMapping("/rentals/history")
     public String rentalHistoryList(
             @RequestParam(value = "searchType", required = false, defaultValue = "equipmentName") String searchType,
-            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             Model model) {
 
