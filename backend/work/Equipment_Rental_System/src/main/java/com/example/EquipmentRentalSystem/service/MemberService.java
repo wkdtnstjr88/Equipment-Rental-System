@@ -16,6 +16,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public Long join(Member member) {
+        member.setLoginId(member.getLoginId().toLowerCase());
         validateDuplicateMember(member);
         memberRepository.save(member);
         return member.getId();
@@ -29,6 +30,7 @@ public class MemberService {
     }
 
     public Member login(String loginId, String password) {
+        String lowerLoginId = loginId.toLowerCase();
         return memberRepository.findByLoginId(loginId)
                 .filter(m -> m.getPassword().equals(password))
                 .orElse(null);
