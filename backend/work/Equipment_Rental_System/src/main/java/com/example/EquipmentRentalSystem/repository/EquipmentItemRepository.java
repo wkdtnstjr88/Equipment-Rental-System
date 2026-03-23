@@ -1,13 +1,20 @@
 package com.example.EquipmentRentalSystem.repository;
 
 import com.example.EquipmentRentalSystem.entity.EquipmentItem;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EquipmentItemRepository extends JpaRepository<EquipmentItem, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT ei FROM EquipmentItem ei WHERE ei.id = :id")
+    Optional<EquipmentItem> findByIdWithLock(@Param("id") Long id);
 
     boolean existsByEquipmentIdAndStatus(Long equipmentId, String status);
 

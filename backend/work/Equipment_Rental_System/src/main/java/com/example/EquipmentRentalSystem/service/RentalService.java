@@ -64,10 +64,9 @@ public class RentalService {
         }
 
 
-        EquipmentItem item = equipmentItemRepository.findById(dto.getItemId())
+        EquipmentItem item = equipmentItemRepository.findByIdWithLock(dto.getItemId())
                 .orElseThrow(() -> new RentalException("該当する機器がありません"));
 
-        // 3. 이미 대여 중인지 체크
         if (!"AVAILABLE".equals(item.getStatus())) {
             throw new RentalException("現在、貸出可能な状態ではありません。");
         }
