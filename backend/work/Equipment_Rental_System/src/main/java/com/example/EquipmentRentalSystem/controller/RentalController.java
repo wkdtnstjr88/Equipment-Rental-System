@@ -4,6 +4,7 @@ import com.example.EquipmentRentalSystem.dto.EquipmentItemResponseDTO;
 import com.example.EquipmentRentalSystem.dto.RentalHistoryResponseDTO;
 import com.example.EquipmentRentalSystem.dto.RentalRequestDTO;
 import com.example.EquipmentRentalSystem.entity.Member;
+import com.example.EquipmentRentalSystem.exception.RentalException;
 import com.example.EquipmentRentalSystem.service.EquipmentService;
 import com.example.EquipmentRentalSystem.service.RentalService;
 import jakarta.validation.Valid;
@@ -70,7 +71,14 @@ public class RentalController {
             return "rentalForm";
         }
 
-        rentalService.createRental(dto);
+        try {
+            rentalService.createRental(dto);
+        } catch (RentalException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("items", equipmentService.getAllAvailableItems());
+            return "rentalForm";
+        }
+
         return "redirect:/rentals/history";
     }
 
