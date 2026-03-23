@@ -1,6 +1,9 @@
 ## 💻 備品貸出管理システム (Equipment Rental System)
 実際の稼働状況を確認する: [公式サイトへ] https://port-0-equipment-rental-system-mn0t70n4b7e2de36.sel3.cloudtype.app/
 
+本プロジェクトはコスト最適化のため、無料ホスティングサービス(Cloudtype)を利用しています。
+一定時間アクセスがない場合、サーバーがスリープ状態に移行するため、**初回アクセス時にサーバーの起動のため30秒〜1分ほど時間がかかる場合があります。
+
 テスト用アカウント
 ID: user
 Password: asd123!@#
