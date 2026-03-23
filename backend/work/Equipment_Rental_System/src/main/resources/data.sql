@@ -22,3 +22,4 @@ INSERT INTO rental_history (equipment_item_id, member_name, rental_date, return_
 (5, 'キム・ヘス', '2026-03-09 09:00:00', '2026-03-09 18:00:00', '返却完了'),
 (6, 'チョ・ジヌン', '2026-03-09 14:00:00', '2026-03-09 21:00:00', '返却完了');
 
+
